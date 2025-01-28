@@ -1,3 +1,17 @@
+# Table of Contents
+
+### Frontend
+- [Environment Setup](#environment-setup)
+- [Project Hierarchy](#project-hierarchy)
+- [Code Examples](#code-examples)
+  - [React Components](#react-components)
+  - [Server-Side](#server-side)
+
+### Backend
+- [Environment Setup](#environment-setup)
+- [Project Hierarchy](#project-hierarchy)
+- [Endpoints](#endpoints)
+
 # Frontend
 
 ## Environment Setup
