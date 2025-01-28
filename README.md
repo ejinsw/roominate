@@ -39,7 +39,7 @@ __Components__ - All accessory components organized by page `/src/components/**/
 
 __Static__ - All static files `/public/`
 
-__Environment Variables__ - .env file for development `/next-env.d.ts`
+__Environment Variables__ - .env file for development `/.env`
 
 ## Code Examples
 ### React Components
