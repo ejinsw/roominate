@@ -14,5 +14,14 @@ datasource db {
 }
 
 model User {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String   @unique
+  createdAt DateTime @default(now())
 }
+
+model Group {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+
+}
+

@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 // import serverless from "serverless-http";
 
 import helloRouter from "./routes/helloRouter";
+import userRouter from "./routes/userRouter";
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.use(cors());
  */
 // TODO: Add routes... i.e. app.use("/<route>", <router>)
 app.use("/", helloRouter);
+app.use("/user", userRouter);
 
 // Error handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
