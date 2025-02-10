@@ -19,3 +19,8 @@ model User {
   email     String   @unique
   createdAt DateTime @default(now())
 }
+
+model Group {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+
+}
