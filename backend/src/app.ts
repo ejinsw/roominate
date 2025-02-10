@@ -8,6 +8,7 @@ import dotenv from "dotenv";
 
 import helloRouter from "./routes/helloRouter";
 import userRouter from "./routes/userRouter";
+import authRouter from "./routes/authRouter";
 
 dotenv.config();
 
@@ -26,7 +27,8 @@ app.use(cors());
  */
 // TODO: Add routes... i.e. app.use("/<route>", <router>)
 app.use("/", helloRouter);
-app.use("/user", userRouter);
+app.use("/api", userRouter);
+app.use("/api", authRouter);
 
 // Error handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {

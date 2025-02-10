@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from "express";
 import prisma from "../prismaClient";
 import bcrypt from "bcryptjs";
 
-export const createUser = expressAsyncHandler(
+export const register = expressAsyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     // Destructure data from request body
     const { name, email, password } = req.body;
@@ -27,5 +27,20 @@ export const createUser = expressAsyncHandler(
 
     // Return the newly created user as JSON
     res.status(201).json({ id: newUser.id });
+  }
+);
+
+export const login = expressAsyncHandler(
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    // Destructure data from request body
+    const { name, email, password } = req.body;
+
+    if (name === undefined || email === undefined || password === undefined) {
+      res.status(500).json({ message: "Invalid request body" });
+      return;
+    }
+
+    // Return the newly created user as JSON
+    res.status(201).json({  });
   }
 );
