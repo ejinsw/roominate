@@ -9,6 +9,7 @@ import dotenv from "dotenv";
 import helloRouter from "./routes/helloRouter";
 import userRouter from "./routes/userRouter";
 import authRouter from "./routes/authRouter";
+import passport from "passport";
 
 dotenv.config();
 
@@ -21,6 +22,16 @@ app.use(morgan("dev"));
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(cors());
+app.use(passport.initialize())
+
+// Token validator
+app.get(
+  "/api/validate-token",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    res.json({ user: req.user, valid: true });
+  }
+);
 
 /**
  * Routes

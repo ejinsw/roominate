@@ -15,16 +15,17 @@ datasource db {
 
 model User {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  groupID  String  @db.ObjectId
-  group    Group    @relation(fields: [groupID], references: [id])
+  groupID   String?   @db.ObjectId
+  group     Group?    @relation(fields: [groupID], references: [id])
   name      String
   email     String   @unique
+  password  String
   createdAt DateTime @default(now())
 }
 
 model Group {
-    id        String   @id @default(auto()) @map("_id") @db.ObjectId
-    name      String
-    users     User[]
-    createdAt DateTime @default(now())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  users     User[]
+  createdAt DateTime @default(now())
 }
