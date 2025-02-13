@@ -21,7 +21,7 @@ model User {
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
-  year      Int
+  year      Int?
 }
 
 model Group {
