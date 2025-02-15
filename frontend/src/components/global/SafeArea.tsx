@@ -4,5 +4,5 @@ interface ContentAreaProps {
 }
 
 export default function SafeArea({ children, className }: ContentAreaProps) {
-  return <div className={`px-4 md:px-32 lg:px-48 ${className}`}>{children}</div>;
+  return <div className={`px-4 md:px-32 lg:px-36 ${className}`}>{children}</div>;
 }

@@ -18,7 +18,7 @@ export function LoginButton({ className }: Props) {
         className={`absolute inset-0 -z-10 h-full rounded bg-yellow-300 transition-transform duration-300 
             ease-in-out group-hover:translate-y-0 translate-y-8`}
       ></span>
-      <span className="">Sign In</span>
+      <span className="font-bold">Sign In</span>
     </Link>
   );
 }
