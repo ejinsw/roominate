@@ -1,22 +1,25 @@
 import expressAsyncHandler from "express-async-handler";
 import { NextFunction, Request, Response } from "express";
+import { Prisma } from '@prisma/client';
 import prisma from "../prismaClient";
 
 export const getUsers = expressAsyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { name, email, group } = req.query;
-      const filter = {};
-  
-      // Build filter object using Prisma's query syntax
-      if (name) {
-        filter.name = { contains: name.toString(), mode: 'insensitive' };
+      const filter = {} as Prisma.UserWhereInput;
+
+      if (req.query.name) {
+        filter.name = { contains: req.query.name.toString(), mode: 'insensitive' };
       }
-      if (email) {
-        filter.email = { contains: email.toString(), mode: 'insensitive' };
+      if (req.query.email) {
+        filter.email = { contains: req.query.email.toString(), mode: 'insensitive' };
       }
-      if (group) {
-        filter.group = group.toString();
+      if (req.query.group) {
+        filter.group = {
+          is: { 
+            name: { contains: req.query.group.toString(), mode: 'insensitive' }
+          }
+        };
       }
   
       const users = await prisma.user.findMany({ where: filter });
