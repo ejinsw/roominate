@@ -9,6 +9,7 @@ import dotenv from "dotenv";
 import helloRouter from "./routes/helloRouter";
 import userRouter from "./routes/userRouter";
 import authRouter from "./routes/authRouter";
+import preferenceRouter from "./routes/preferenceRouter";
 import passport from "passport";
 
 dotenv.config();
@@ -40,6 +41,7 @@ app.get(
 app.use("/", helloRouter);
 app.use("/api", userRouter);
 app.use("/api", authRouter);
+app.use("/api", preferenceRouter);
 
 // Error handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {

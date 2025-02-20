@@ -36,7 +36,7 @@ model Group {
   name        String
   description String?
   numRoomates Int?
-  open        Boolean
+  openToJoin        Boolean
   requests    Request[]
   invitations Invite[]
   preferences HousingPreferences?
@@ -54,7 +54,7 @@ model Request {
   groupID String @db.ObjectId
   group   Group  @relation(fields: [groupID], references: [id])
 
-  status  Status
+  status  String
   message String?
 
   @@index([userID, groupID])
@@ -70,16 +70,10 @@ model Invite {
   groupID String @db.ObjectId
   group   Group  @relation(fields: [groupID], references: [id])
 
-  status  Status
+  status  String
   message String?
 
   @@index([userID, groupID])
-}
-
-enum Status {
-  PENDING
-  ACCEPTED
-  REJECTED
 }
 
 model HousingPreferences {
@@ -113,6 +107,7 @@ model Preference {
 
   category   String
   value      String
+  options   String[]
   importance String
 }
 
