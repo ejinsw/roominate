@@ -33,15 +33,13 @@ model Group {
   users     User[]
   createdAt DateTime @default(now())
 
-  name        String
+  name        String              @unique
   description String?
   numRoomates Int?
-  openToJoin        Boolean
+  openToJoin  Boolean
   requests    Request[]
   invitations Invite[]
   preferences HousingPreferences?
-
-  @@index([name])
 }
 
 model Request {
@@ -94,11 +92,16 @@ model HousingPreferences {
 model PreferenceHousingPreferencesM2M {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  preferencesID String             @db.ObjectId
-  housingPreferences   HousingPreferences @relation(fields: [preferencesID], references: [id])
+  preferencesID      String             @db.ObjectId
+  housingPreferences HousingPreferences @relation(fields: [preferencesID], references: [id])
 
   preferenceID String     @db.ObjectId
   preference   Preference @relation(fields: [preferenceID], references: [id])
+
+  option     String?
+  importance String?
+
+  @@unique([preferencesID, preferenceID])
 }
 
 model Preference {
@@ -107,8 +110,8 @@ model Preference {
 
   category   String
   value      String
-  options   String[]
-  importance String
+  options    String[]
+  importance String[]
 }
 
 model Housing {
@@ -139,6 +142,8 @@ model HousingPreferencesM2M {
   housingID String  @db.ObjectId
   housing   Housing @relation(fields: [housingID], references: [id])
 
-  preferencesID String             @unique @db.ObjectId
+  preferencesID String             @db.ObjectId
   preferences   HousingPreferences @relation(fields: [preferencesID], references: [id])
+
+  @@unique([housingID, preferencesID])
 }
