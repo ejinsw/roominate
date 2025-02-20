@@ -1,3 +1,5 @@
+"use client";
+
 interface FormSelectMultipleInterface {
     id: string;
     label: string;
