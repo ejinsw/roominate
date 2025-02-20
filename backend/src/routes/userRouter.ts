@@ -1,7 +1,10 @@
 import { Router } from "express";
-import { } from "../controllers/userController";
+import { getUsers } from "../controllers/userController";
 const router = Router();
 
-router.post("/users", );
+router.get("/users", getUsers);
+router.get("/test", (req, res) => {
+    res.json({ message: "Test route" });
+    });
 
 export default router;
