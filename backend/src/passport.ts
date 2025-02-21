@@ -5,6 +5,8 @@ import {
   StrategyOptions,
 } from "passport-jwt";
 import prisma from "./prismaClient";
+import { Request, Response, NextFunction } from "express";
+import { User } from "@prisma/client";
 
 const opts: StrategyOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -18,6 +20,18 @@ passport.use(
       // Find the user in the database
       const user = await prisma.user.findUnique({
         where: { id: jwt_payload.sub },
+        include: {
+          requests: {
+            include: {
+              group: true,
+            },
+          },
+          invites: {
+            include: {
+              group: true,
+            },
+          },
+        },
       });
 
       // If user is found, return the user object
@@ -34,6 +48,34 @@ passport.use(
   })
 );
 
-export const authenticate = passport.authenticate("jwt", { session: false });
-
+export const authenticate = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  passport.authenticate(
+    "jwt",
+    { session: false },
+    (err: Error, user?: User | false, info?: any) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({
+            success: false,
+            message: "Server error",
+            error: err.message,
+          });
+      }
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: "Unauthorized",
+          error: info?.message || "Invalid token",
+        });
+      }
+      req.user = user;
+      next();
+    }
+  )(req, res, next);
+};
 export default passport;
