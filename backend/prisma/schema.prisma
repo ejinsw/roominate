@@ -33,15 +33,13 @@ model Group {
   users     User[]
   createdAt DateTime @default(now())
 
-  name        String
+  name        String @unique
   description String?
   numRoomates Int?
-  openToJoin        Boolean
+  openToJoin  Boolean
   requests    Request[]
   invitations Invite[]
   preferences HousingPreferences?
-
-  @@index([name])
 }
 
 model Request {
