@@ -1,6 +1,6 @@
-import NavBar from "@/app/home/NavBar";
-import Banner from "@/app/home/Banner";
-import Filter from "@/app/home/Filter";
+import NavBar from "@/components/global/NavBar";
+import Banner from "@/components/home/Banner";
+import Filter from "@/components/home/Filter";
 
 export default function Home() {
   // TODO: Finish Homepage
