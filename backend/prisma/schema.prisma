@@ -23,7 +23,7 @@ model User {
   createdAt DateTime @default(now())
   year      Int?
 
-  preferences HousingPreferences?
+  preferences UserPreferences?
   requests    Request[]
   invites     Invite[]
 }
@@ -33,13 +33,13 @@ model Group {
   users     User[]
   createdAt DateTime @default(now())
 
-  name        String              @unique
+  name        String            @unique
   description String?
   numRoomates Int?
   openToJoin  Boolean
   requests    Request[]
   invitations Invite[]
-  preferences HousingPreferences?
+  preferences GroupPreferences?
 }
 
 model Request {
@@ -74,52 +74,13 @@ model Invite {
   @@index([userID, groupID])
 }
 
-model HousingPreferences {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  userID String? @unique @db.ObjectId
-  user   User?   @relation(fields: [userID], references: [id])
-
-  groupID String? @unique @db.ObjectId
-  group   Group?  @relation(fields: [groupID], references: [id])
-
-  preferredHousing HousingPreferencesM2M[]
-  preferences      PreferenceHousingPreferencesM2M[]
-}
-
-model PreferenceHousingPreferencesM2M {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-
-  preferencesID      String             @db.ObjectId
-  housingPreferences HousingPreferences @relation(fields: [preferencesID], references: [id])
-
-  preferenceID String     @db.ObjectId
-  preference   Preference @relation(fields: [preferenceID], references: [id])
-
-  option     String?
-  importance String?
-
-  @@unique([preferencesID, preferenceID])
-}
-
-model Preference {
-  id                 String                            @id @default(auto()) @map("_id") @db.ObjectId
-  relatedPreferences PreferenceHousingPreferencesM2M[]
-
-  category   String
-  value      String
-  options    String[]
-  importance String[]
-}
-
 model Housing {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  relatedPreferences HousingPreferencesM2M[]
+  relatedUserPreferences  UserHousingPreferencesRelation[]
+  relatedGroupPreferences GroupHousingPreferencesRelation[]
 
   name String? @unique
 
@@ -136,14 +97,91 @@ model Housing {
   privateBathroom  Boolean?
 }
 
-model HousingPreferencesM2M {
+model Preference {
+  id                 String                    @id @default(auto()) @map("_id") @db.ObjectId
+  relatedUserPreferences UserPreferencesRelation[]
+  relatedGroupPreferences GroupPreferencesRelation[]
+
+  category   String
+  value      String
+  options    String[]
+  importance String[]
+}
+
+model UserPreferences {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userID String? @unique @db.ObjectId
+  user   User?   @relation(fields: [userID], references: [id])
+
+  preferredHousing UserHousingPreferencesRelation[]
+  preferences      UserPreferencesRelation[]
+}
+
+model UserPreferencesRelation {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  userPreferencesID      String          @db.ObjectId
+  userPreferences UserPreferences @relation(fields: [userPreferencesID], references: [id])
+
+  preferenceID String     @db.ObjectId
+  preference   Preference @relation(fields: [preferenceID], references: [id])
+
+  option     String?
+  importance String?
+
+  @@unique([userPreferencesID, preferenceID])
+}
+
+model UserHousingPreferencesRelation {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   housingID String  @db.ObjectId
   housing   Housing @relation(fields: [housingID], references: [id])
 
-  preferencesID String             @db.ObjectId
-  preferences   HousingPreferences @relation(fields: [preferencesID], references: [id])
+  preferencesID String          @db.ObjectId
+  preferences   UserPreferences @relation(fields: [preferencesID], references: [id])
+
+  @@unique([housingID, preferencesID])
+}
+
+model GroupPreferences {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  groupID String? @unique @db.ObjectId
+  group   Group?  @relation(fields: [groupID], references: [id])
+
+  preferredHousing GroupHousingPreferencesRelation[]
+  preferences      GroupPreferencesRelation[]
+}
+
+model GroupPreferencesRelation {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  groupPreferencesID      String          @db.ObjectId
+  groupPreferences GroupPreferences @relation(fields: [groupPreferencesID], references: [id])
+
+  preferenceID String     @db.ObjectId
+  preference   Preference @relation(fields: [preferenceID], references: [id])
+
+  option     String?
+  importance String?
+
+  @@unique([groupPreferencesID, preferenceID])
+}
+
+model GroupHousingPreferencesRelation {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  housingID String  @db.ObjectId
+  housing   Housing @relation(fields: [housingID], references: [id])
+
+  preferencesID String          @db.ObjectId
+  preferences   GroupPreferences @relation(fields: [preferencesID], references: [id])
 
   @@unique([housingID, preferencesID])
 }

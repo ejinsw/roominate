@@ -24,7 +24,7 @@ export const getUsersByHousingById = expressAsyncHandler(
       const housing = await prisma.housing.findUnique({
         where: { id },
         include: {
-          relatedPreferences: {
+          relatedUserPreferences: {
             include: {
               preferences: {
                 include: { user: true },
@@ -34,7 +34,7 @@ export const getUsersByHousingById = expressAsyncHandler(
         },
       });
 
-      const users = housing?.relatedPreferences.map((p) => p.preferences.user);
+      const users = housing?.relatedUserPreferences.map((p) => p.preferences.user);
 
       res.json({ users });
     } catch (error) {
@@ -54,7 +54,7 @@ export const getGroupsByHousingById = expressAsyncHandler(
       const housing = await prisma.housing.findUnique({
         where: { id },
         include: {
-          relatedPreferences: {
+          relatedGroupPreferences: {
             include: {
               preferences: {
                 include: { group: true },
@@ -64,7 +64,7 @@ export const getGroupsByHousingById = expressAsyncHandler(
         },
       });
 
-      const groups = housing?.relatedPreferences.map((p) => p.preferences.group);
+      const groups = housing?.relatedGroupPreferences.map((p) => p.preferences.group);
 
       res.json({ groups });
     } catch (error) {
