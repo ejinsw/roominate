@@ -1,7 +1,14 @@
-import React from "react";
+import NavBar from "@/components/global/NavBar";
+import Banner from "@/components/home/Banner";
+import Filter from "@/components/home/Filter";
 
-const page = () => {
-  return <div></div>;
-};
-
-export default page;
+export default function Home() {
+  // TODO: Finish Homepage
+  return (
+    <div>
+      <NavBar />
+      <Banner />
+      <Filter />
+    </div>
+  );
+}
