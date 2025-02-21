@@ -1,7 +1,9 @@
 import { Router } from "express";
-import { } from "../controllers/userController";
+import { getAllHousing, getGroupsByHousingById, getUsersByHousingById } from "../controllers/housingController";
 const router = Router();
 
-router.post("/users", );
+router.get("/preferences", getAllHousing);
+router.get("/preferences/users/:id", getUsersByHousingById);
+router.get("/preferences/groups/:id", getGroupsByHousingById);
 
 export default router;
