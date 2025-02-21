@@ -10,7 +10,6 @@ export const register = expressAsyncHandler(
       // Destructure data from request body
       const { name, email, password, year } = req.body;
 
-      console.log(req.body);
 
       if (!name || !email || !password || !year) {
         res.status(500).json({ message: "Invalid request body" });
@@ -29,7 +28,7 @@ export const register = expressAsyncHandler(
         // Perform the create operation in Prisma
         const newUser = await prisma.user.create({
           data: {
-            year,
+            year: parseInt(year),
             name,
             email,
             password: hashedPassword,
@@ -109,13 +108,18 @@ export const login = expressAsyncHandler(
 
 export const me = expressAsyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const user = req.user;
+    try {
+      const user = req.user;
 
-    if (!user) {
-      res.status(401).json({ message: "Unauthorized" });
-      return;
+      if (!user) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
+
+      res.json({ user: req.user });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Server error", error });
     }
-
-    res.json({ user: req.user });
   }
 );
