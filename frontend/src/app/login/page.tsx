@@ -5,6 +5,7 @@ import { Title } from "@/components/home/Title";
 import { LoginForm } from "@/components/login/LoginForm";
 import { SubmitButton } from "@/components/login/SubmitButton";
 import { LoginBackground } from "@/components/login/LoginBackground";
+import Link from "next/link";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -37,6 +38,9 @@ export default function LoginPage() {
           required
         />
         <SubmitButton>Sign In</SubmitButton>
+        <small className="mt-2 font-semibold">
+          Don't have an account? <Link href="/signup" className="hover:text-blue-500">Sign up</Link>
+        </small>
       </form>
     </div>
   );

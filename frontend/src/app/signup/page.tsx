@@ -6,7 +6,7 @@ import { LoginForm } from "@/components/login/LoginForm";
 import { SubmitButton } from "@/components/login/SubmitButton";
 import { LoginBackground } from "@/components/login/LoginBackground";
 import { LoginFormMultiple } from "@/components/login/LoginFormMultiple";
-
+import Link from "next/link";
 export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -65,6 +65,9 @@ export default function SignupPage() {
           required
         />
         <SubmitButton>Next</SubmitButton>
+        <small className="mt-2 font-semibold">
+          Have an account? <Link href="/login" className="hover:text-blue-500">Log In</Link>
+        </small>
       </form>
     </div>
   );
