@@ -6,6 +6,7 @@ import React, {
   useContext,
   ReactNode,
   useState,
+  useEffect,
 } from "react";
 
 interface UserContextType {
@@ -33,6 +34,13 @@ export function UserProvider({
     setUser(null);
     location.reload();
   };
+
+  const unsecurePaths = ["/login", "/signup", "/forgot-password", "/reset-password", "/"];
+  useEffect(() => {
+    if (!user && !unsecurePaths.includes(window.location.pathname)) {
+      window.location.href = "/login";
+    }
+  });
 
   return (
     <UserContext.Provider value={{ user, setUser, logout }}>
