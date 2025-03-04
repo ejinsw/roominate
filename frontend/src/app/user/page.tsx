@@ -15,7 +15,7 @@ export default function UserProfile() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-[#E6F3FF]">
-      <NavBar />
+      {/* <NavBar /> */}
       
       <div className="max-w-6xl mx-auto px-4 py-6">
         <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-gray-200">

@@ -6,7 +6,7 @@ export default function Home() {
   // TODO: Finish Homepage
   return (
     <div>
-      <NavBar />
+      {/* <NavBar /> */}
       <Banner />
       <Filter />
     </div>
