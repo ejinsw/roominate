@@ -12,6 +12,8 @@ import authRouter from "./routes/authRouter";
 import preferenceRouter from "./routes/preferenceRouter";
 import groupRouter from "./routes/groupRouter";
 import housingRouter from "./routes/housingRouter";
+import inviteRouter from "./routes/inviteRouter";
+// import requestRouter from "./routes/requestRouter";
 
 dotenv.config();
 
@@ -44,6 +46,8 @@ app.use("/api", authRouter);
 app.use("/api", preferenceRouter);
 app.use("/api", housingRouter);
 app.use("/api", groupRouter);
+app.use("/api", inviteRouter);
+// app.use("/api", requestRouter);
 
 // Error handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
