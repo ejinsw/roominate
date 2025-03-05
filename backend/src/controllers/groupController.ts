@@ -65,9 +65,8 @@ export const createGroups = expressAsyncHandler(
                       },
                     },
                 });
+                res.json(newGroup); // return json of newly created group
             }
-
-            res.json({ message: "Group created successfully!" });
         } catch (error) {
           console.log(error);
           res.status(500).json({ message: "Server error", error });

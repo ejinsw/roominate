@@ -15,7 +15,7 @@ export const getUsers = expressAsyncHandler(
         filter.email = { contains: req.query.email.toString(), mode: 'insensitive' };
       }
       if (req.query.id) {
-        filter.id = { contains: req.query.id.toString(), mode: 'insensitive' }; // check if this works
+        filter.id = { contains: req.query.id.toString(), mode: 'insensitive' };
       }
   
       const users = await prisma.user.findMany({ where: filter });
