@@ -6,7 +6,6 @@ import {
 } from "passport-jwt";
 import prisma from "./prismaClient";
 import { Request, Response, NextFunction } from "express";
-import { User } from "@prisma/client";
 
 const opts: StrategyOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -21,6 +20,20 @@ passport.use(
       const user = await prisma.user.findUnique({
         where: { id: jwt_payload.sub },
         include: {
+          preferences: {
+            include: {
+              preferences: {
+                include: {
+                  preference: true,
+                }
+              },
+              preferredHousing: {
+                include: {
+                  housing: true
+                }
+              }
+            }
+          },
           requests: {
             include: {
               group: true,
@@ -56,15 +69,13 @@ export const authenticate = (
   passport.authenticate(
     "jwt",
     { session: false },
-    (err: Error, user?: User | false, info?: any) => {
+    (err: Error, user?: Express.User | false, info?: any) => {
       if (err) {
-        return res
-          .status(500)
-          .json({
-            success: false,
-            message: "Server error",
-            error: err.message,
-          });
+        return res.status(500).json({
+          success: false,
+          message: "Server error",
+          error: err.message,
+        });
       }
       if (!user) {
         return res.status(401).json({
@@ -79,3 +90,30 @@ export const authenticate = (
   )(req, res, next);
 };
 export default passport;
+
+export const authenticateOptional = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  passport.authenticate(
+    "jwt",
+    { session: false },
+    (err: Error, user?: Express.User | false, info?: any) => {
+      if (err) {
+        return res.status(500).json({
+          success: false,
+          message: "Server error",
+          error: err.message,
+        });
+      }
+
+      if (user) {
+        req.user = user
+      } else {
+        req.user = undefined
+      }
+      next();
+    }
+  )(req, res, next);
+};
