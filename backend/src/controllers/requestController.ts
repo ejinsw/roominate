@@ -11,6 +11,9 @@ export const getRequests = expressAsyncHandler(
     // check if user exists
     const user = await prisma.user.findUnique({
       where: { id: id },
+      include: {
+        requests: true,
+      },
     });
 
     if (!user) {
@@ -20,7 +23,7 @@ export const getRequests = expressAsyncHandler(
 
     // Get all requests that the user has made
     const requests = await prisma.invite.findMany({
-      where: { id },
+      where: { userID: id },
     });
 
     res.status(200).json(requests);
