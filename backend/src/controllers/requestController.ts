@@ -1,16 +1,15 @@
 import expressAsyncHandler from "express-async-handler";
 import { NextFunction, Request, Response } from "express";
-import { Prisma } from "@prisma/client";
 import prisma from "../prismaClient";
 
-//get the requests that the user has made
+// Get the requests that the user has made
 export const getRequests = expressAsyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { id } = req.params; //id is the userID
-
-    // check if user exists
+    const { id } = req.params;
+    console.log(id);
+    // Check if user exists and include requests
     const user = await prisma.user.findUnique({
-      where: { id: id },
+      where: { id },
       include: {
         requests: true,
       },
@@ -21,11 +20,13 @@ export const getRequests = expressAsyncHandler(
       throw new Error("User not found");
     }
 
-    // Get all requests that the user has made
-    const requests = await prisma.invite.findMany({
-      where: { userID: id },
+    const getRequests = await prisma.request.findMany({
+      where: {
+        userID: id,
+      },
     });
 
-    res.status(200).json(requests);
+    // Return the requests associated with the user
+    res.status(200).json(user.requests);
   }
 );
