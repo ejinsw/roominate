@@ -1,11 +1,13 @@
 "use client";
 
 import { User } from "@/types/types";
+import { useRouter, usePathname } from "next/navigation";
 import React, {
   createContext,
   useContext,
   ReactNode,
   useState,
+  useEffect,
 } from "react";
 
 interface UserContextType {
@@ -27,12 +29,31 @@ export function UserProvider({
   children,
 }: UserProviderProps) {
   const [user, setUser] = useState<User | null>(initialUser);
+  const router = useRouter();
+  const pathname = usePathname(); 
 
   const logout = async () => {
     await fetch("/api/auth/token", { method: "DELETE" });
     setUser(null);
     location.reload();
   };
+
+  const unsecurePaths = [
+    "/login",
+    "/signup",
+    "/forgot-password",
+    "/reset-password",
+    "/",
+  ];
+  useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      !user &&
+      !unsecurePaths.includes(pathname)
+    ) {
+      router.push("/login");
+    }
+  }, [user, router, pathname]);
 
   return (
     <UserContext.Provider value={{ user, setUser, logout }}>
