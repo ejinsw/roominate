@@ -14,6 +14,7 @@ export default function SignupPage() {
   const [name, setName] = useState("");
   const [year, setYear] = useState("");
   const [error, setError] = useState("");
+  const [gender, setGender] = useState("");
   const { user } = useUser();
 
   useEffect(() => {
@@ -30,6 +31,13 @@ export default function SignupPage() {
     { value: "4", label: "Senior" },
     { value: "5", label: "Super Senior" },
   ];
+
+  const genderOptions = [
+    { value: "Male", label: "Male" },
+    { value: "Female", label: "Female" },
+    { value: "Non-Binary", label: "Non-Binary" },
+    { value: "Other", label: "Other" },
+  ]
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,6 +115,14 @@ export default function SignupPage() {
           value={year}
           onChange={setYear}
           options={yearOptions}
+          required
+        />
+        <LoginFormMultiple
+          id="gender"
+          label="Gender"
+          value={gender}
+          onChange={setGender}
+          options={genderOptions}
           required
         />
         <SubmitButton>Next</SubmitButton>
