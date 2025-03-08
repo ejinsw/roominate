@@ -7,7 +7,31 @@ export const getUsers = expressAsyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       /* Parse Query Filters */
-      const { filters: queryFilters } = req.query;
+      const { filters: queryFilters, userId } = req.query;
+
+      let user : Express.User | null = null;
+
+      if (userId) {
+        user = await prisma.user.findUnique({
+          where: { id: userId.toString() },
+          include: {
+            preferences: {
+              include: {
+                preferences: {
+                  include: {
+                    preference: true,
+                  },
+                },
+                preferredHousing: {
+                  include: {
+                    housing: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
 
       // this'll contain the parsed query filters
       let parsedFilters: {
@@ -53,7 +77,7 @@ export const getUsers = expressAsyncHandler(
       }
 
       // Gender filter
-      if (parsedFilters.gender.length) {
+      if (parsedFilters.gender?.length) {
         filter.gender = {
           in: parsedFilters.gender,
           mode: "insensitive",
@@ -61,12 +85,12 @@ export const getUsers = expressAsyncHandler(
       }
 
       // Year filter
-      if (parsedFilters.year.length) {
+      if (parsedFilters.year?.length) {
         filter.year = { in: parsedFilters.year.map((val) => parseInt(val)) };
       }
 
       // Major filter
-      if (parsedFilters.major.length) {
+      if (parsedFilters.major?.length) {
         filter.major = {
           in: parsedFilters.major,
           mode: "insensitive",
@@ -74,15 +98,15 @@ export const getUsers = expressAsyncHandler(
       }
 
       // Preference filters
-      if (parsedFilters.preferences.length && filter.preferences && req.user) {
+      if (parsedFilters.preferences?.length && parsedFilters.preferences && user) {
         filter.preferences = {
           preferences: {
             every: {
               AND: parsedFilters.preferences.map((preference) => {
                 // this finds the matching user pref
-                const userPreference = req.user?.preferences?.preferences
-                  ? req.user.preferences.preferences.find(
-                      (val) => val.preference.value === preference
+                const userPreference = (req.user as any)?.preferences?.preferences
+                  ? (req.user as any)?.preferences.preferences.find(
+                      (val: any) => val.preference.value === preference
                     )
                   : null;
 
@@ -107,7 +131,7 @@ export const getUsers = expressAsyncHandler(
       }
 
       // Housing filter
-      if (parsedFilters.housing.length && filter.preferences && req.user) {
+      if (parsedFilters.housing?.length) {
         filter.preferences = {
           preferredHousing: {
             some: {

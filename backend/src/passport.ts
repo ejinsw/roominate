@@ -52,7 +52,7 @@ passport.use(
         return done(null, user);
       } else {
         // If no user is found, return false
-        return done(null, false);
+        return done(null, undefined);
       }
     } catch (err) {
       // Handle any errors that occur during the database query
@@ -110,8 +110,6 @@ export const authenticateOptional = (
 
       if (user) {
         req.user = user
-      } else {
-        req.user = undefined
       }
       next();
     }

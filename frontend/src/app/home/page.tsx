@@ -1,11 +1,13 @@
 "use client";
 import Banner from "@/components/home/Banner";
 import Filter from "@/components/home/Filter";
+import { useUser } from "@/context/UserContext";
 import { Housing, Preference, User } from "@/types/types";
 import { useEffect, useState } from "react";
 
 async function getUser(
   name: string,
+  userId: string,
   filters: {
     gender: string[];
     preferences: string[];
@@ -20,7 +22,7 @@ async function getUser(
     }).toString();
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/users?${queryParams}`
+      `${process.env.NEXT_PUBLIC_API_URL}/users?userId=${userId}&${queryParams}`
     );
     const data = await res.json();
     return data;
@@ -53,6 +55,7 @@ async function getHousing(): Promise<Housing[]> {
 }
 
 export default function Home() {
+  const { user } = useUser();
   const [searchInput, setSearchInput] = useState("");
   const [users, setUsers] = useState<User[]>([]);
   const [filterOptions, setFilterOptions] = useState<
@@ -71,11 +74,11 @@ export default function Home() {
 
   useEffect(() => {
     const debounce = setTimeout(() => {
-      getUser(searchInput, filters).then((data) => setUsers(data));
+      getUser(searchInput, user?.id ?? "", filters).then((data) => setUsers(data));
     }, 300);
 
     return () => clearTimeout(debounce);
-  }, [searchInput, filters]);
+  }, [searchInput, filters, user]);
 
   useEffect(() => {
     // Get Preferences
@@ -106,7 +109,7 @@ export default function Home() {
     });
     const housingFilter = {
       label: "Housing",
-      options: ["Male", "Female"],
+      options: housing,
       callback: (val: string[]) => {
         const newFilters = { ...filters };
         newFilters.housing = val;
@@ -157,7 +160,7 @@ export default function Home() {
         <div>
           <h1 className="text-2xl font-bold text-[#2774AE]">Users</h1>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {users.map((user) => (
+            {(users.length ? users : []).map((user) => (
               <div key={user.id} className="bg-white rounded-lg shadow-md p-4">
                 <h2 className="text-lg font-semibold text-[#2774AE]">
                   {user.name}

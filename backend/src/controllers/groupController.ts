@@ -49,31 +49,30 @@ export const createGroups = expressAsyncHandler(
         return;
       }
 
-            const group = await prisma.group.findUnique({
-                where: { name },
-            });
-            
-            if (group) {
-            res.status(400).json({ message: "Group already exists!" });
-            } else { 
-                const newGroup = await prisma.group.create({
-                    data: {
-                    name,
-                    description,
-                    numRoomates,
-                    openToJoin,
-                    users: {
-                        // Connect existing users by their unique identifier (e.g., id)
-                        connect: [{ id: userID }],
-                      },
-                    },
-                });
-                res.json(newGroup); // return json of newly created group
-            }
-        } catch (error) {
-          console.log(error);
-          res.status(500).json({ message: "Server error", error });
-        }
+      const group = await prisma.group.findUnique({
+        where: { name },
+      });
+
+      if (group) {
+        res.status(400).json({ message: "Group already exists!" });
+      } else {
+        const newGroup = await prisma.group.create({
+          data: {
+            name,
+            description,
+            numRoomates,
+            openToJoin,
+            users: {
+              // Connect existing users by their unique identifier (e.g., id)
+              connect: [{ id: userID }],
+            },
+          },
+        });
+        res.json(newGroup); // return json of newly created group
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Server error", error });
     }
   }
 );

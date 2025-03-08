@@ -9,14 +9,14 @@ declare global {
             include: {
               preferences: {
                 include: {
-                  preference: true
-                }
-              },
+                  preference: true;
+                };
+              };
               preferredHousing: {
                 include: {
-                  housing: true
-                }
-              }
+                  housing: true;
+                };
+              };
             };
           };
         };
