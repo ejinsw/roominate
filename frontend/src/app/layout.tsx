@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { UserProvider } from "@/context/UserContext";
 import { cookies } from "next/headers";
+import { Header } from "@/components/global/Header";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,7 +29,7 @@ export default async function RootLayout({
   const getUser = async () => {
     try {
       const cookieStore = await cookies();
-      const token =  cookieStore.get("token");
+      const token = cookieStore.get("token");
 
       if (!token) return;
 
@@ -53,7 +54,10 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <UserProvider initialUser={user}>{children}</UserProvider>
+        <UserProvider initialUser={user}>
+          <Header className="sticky top-0 z-10"/>
+          {children}
+        </UserProvider>
       </body>
     </html>
   );

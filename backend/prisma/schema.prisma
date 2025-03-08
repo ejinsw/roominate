@@ -20,8 +20,12 @@ model User {
   name      String
   email     String   @unique
   password  String
+  gender    String?
   createdAt DateTime @default(now())
   year      Int?
+  major     String?
+  bio       String?
+  interests String[]
 
   preferences UserPreferences?
   requests    Request[]
@@ -98,8 +102,8 @@ model Housing {
 }
 
 model Preference {
-  id                 String                    @id @default(auto()) @map("_id") @db.ObjectId
-  relatedUserPreferences UserPreferencesRelation[]
+  id                      String                     @id @default(auto()) @map("_id") @db.ObjectId
+  relatedUserPreferences  UserPreferencesRelation[]
   relatedGroupPreferences GroupPreferencesRelation[]
 
   category   String
@@ -123,8 +127,8 @@ model UserPreferences {
 model UserPreferencesRelation {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  userPreferencesID      String          @db.ObjectId
-  userPreferences UserPreferences @relation(fields: [userPreferencesID], references: [id])
+  userPreferencesID String          @db.ObjectId
+  userPreferences   UserPreferences @relation(fields: [userPreferencesID], references: [id])
 
   preferenceID String     @db.ObjectId
   preference   Preference @relation(fields: [preferenceID], references: [id])
@@ -162,8 +166,8 @@ model GroupPreferences {
 model GroupPreferencesRelation {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  groupPreferencesID      String          @db.ObjectId
-  groupPreferences GroupPreferences @relation(fields: [groupPreferencesID], references: [id])
+  groupPreferencesID String           @db.ObjectId
+  groupPreferences   GroupPreferences @relation(fields: [groupPreferencesID], references: [id])
 
   preferenceID String     @db.ObjectId
   preference   Preference @relation(fields: [preferenceID], references: [id])
@@ -180,7 +184,7 @@ model GroupHousingPreferencesRelation {
   housingID String  @db.ObjectId
   housing   Housing @relation(fields: [housingID], references: [id])
 
-  preferencesID String          @db.ObjectId
+  preferencesID String           @db.ObjectId
   preferences   GroupPreferences @relation(fields: [preferencesID], references: [id])
 
   @@unique([housingID, preferencesID])

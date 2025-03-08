@@ -8,7 +8,7 @@ const Banner = () => {
       <div className="absolute w-28 h-28 top-[20%] right-[8%] rounded-full bg-sky-200/20" />
 
       {/* Content */}
-      <div className="relative z-10 text-center">
+      <div className="relative text-center">
         <h1 className="text-3xl font-bold text-gray-800 mb-3">
           Find your next roommate at UCLA
         </h1>
