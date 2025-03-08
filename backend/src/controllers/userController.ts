@@ -97,6 +97,7 @@ export const getUsers = expressAsyncHandler(
         };
       }
 
+      //COPY FROM HERE
       // Preference filters
       if (parsedFilters.preferences?.length && parsedFilters.preferences && user) {
         filter.preferences = {
@@ -149,6 +150,7 @@ export const getUsers = expressAsyncHandler(
           },
         };
       }
+      //TO HERE
 
       const users = await prisma.user.findMany({ where: filter });
       res.json(users);

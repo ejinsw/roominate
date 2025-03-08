@@ -25,6 +25,25 @@ declare global {
     export interface Request {
       user: User;
     }
+    export interface Group
+    extends Prisma.GroupGetPayload<{
+      include: {
+        preferences: {
+          include: {
+            preferences: {
+              include: {
+                preference: true;
+              };
+            };
+            preferredHousing: {
+              include: {
+                housing: true;
+              };
+            };
+          };
+        };
+      };
+    }> {}
   }
 }
 
