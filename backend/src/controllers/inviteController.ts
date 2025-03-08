@@ -115,6 +115,9 @@ export const getInvites = expressAsyncHandler(
     // check if group exists
     const group = await prisma.group.findUnique({
       where: { id: id },
+      include: {
+        invitations: true,
+      },
     });
 
     if (!group) {
@@ -124,9 +127,8 @@ export const getInvites = expressAsyncHandler(
 
     // Get all invites for the group
     const invites = await prisma.invite.findMany({
-      where: { id },
+      where: { groupID: id },
     });
-
     res.status(200).json(invites);
   }
 );
