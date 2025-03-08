@@ -59,7 +59,7 @@ const Filter = ({ filters, searchInput, setSearchInput, className }: Props) => {
                   onChange={() => onInputChange(filter.callback, filter.label)}
                   className={`${filter.label} form-checkbox text-blue-600`}
                 />
-                <span className="text-gray-700">{option}</span>
+                <span className="text-gray-700">{option === '5' ? '5+' : option}</span>
               </label>
             ))}
           </div>

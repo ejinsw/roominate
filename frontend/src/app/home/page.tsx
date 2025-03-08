@@ -1,6 +1,7 @@
 "use client";
 import Banner from "@/components/home/Banner";
 import Filter from "@/components/home/Filter";
+import UserCard from "@/components/home/UserCard";
 import { useUser } from "@/context/UserContext";
 import { Housing, Preference, User } from "@/types/types";
 import { useEffect, useState } from "react";
@@ -73,8 +74,14 @@ export default function Home() {
   }>({ gender: [], preferences: [], housing: [], year: [] });
 
   useEffect(() => {
+    if (!user) return;
+    
     const debounce = setTimeout(() => {
-      getUser(searchInput, user?.id ?? "", filters).then((data) => setUsers(data));
+      getUser(searchInput, user.id ?? "", filters).then((data) => {
+        // Filter out the current user
+        const filteredUsers = data.filter(u => u.id !== user.id);
+        setUsers(filteredUsers);
+      });
     }, 300);
 
     return () => clearTimeout(debounce);
@@ -117,10 +124,9 @@ export default function Home() {
       },
     };
 
-    // Get Gender
     const genderFilter = {
       label: "Gender",
-      options: ["Male", "Female"],
+      options: ["Male", "Female", "Non-Binary", "Other"],
       callback: (val: string[]) => {
         const newFilters = { ...filters };
         newFilters.gender = val;
@@ -148,8 +154,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* <NavBar /> */}
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-[#E6F3FF]">
       <Banner />
       <div className="flex flex-row flex-1">
         <Filter
@@ -157,18 +162,19 @@ export default function Home() {
           setSearchInput={setSearchInput}
           filters={filterOptions}
         />
-        <div>
-          <h1 className="text-2xl font-bold text-[#2774AE]">Users</h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {(users.length ? users : []).map((user) => (
-              <div key={user.id} className="bg-white rounded-lg shadow-md p-4">
-                <h2 className="text-lg font-semibold text-[#2774AE]">
-                  {user.name}
-                </h2>
-                <p className="text-gray-800">{user.email}</p>
-              </div>
-            ))}
-          </div>
+        <div className="flex-1 p-6">
+          <h1 className="text-2xl font-bold text-[#2774AE] mb-6">Find Roommates</h1>
+          {users.length === 0 ? (
+            <div className="bg-white/80 rounded-lg p-8 text-center shadow-sm border border-gray-200">
+              <p className="text-gray-600">No matching users found</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {users.map((user) => (
+                <UserCard key={user.id} user={user} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
