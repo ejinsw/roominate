@@ -1,8 +1,7 @@
 import expressAsyncHandler from "express-async-handler";
 import { NextFunction, Request, Response } from "express";
-import { Prisma } from "@prisma/client";
+import { Prisma, Group } from "@prisma/client";
 import prisma from "../prismaClient";
-import { Group } from "../types";
 
 export const getGroups = expressAsyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -10,7 +9,7 @@ export const getGroups = expressAsyncHandler(
       /* Parse Query Filters */
       const { filters: queryFilters, groupId, name } = req.query;
 
-      let group : Group | null = null;
+      let group: Group | null = null;
 
       if (groupId) {
         group = await prisma.group.findUnique({
