@@ -53,6 +53,13 @@ export function UserProvider({
     ) {
       router.push("/login");
     }
+    if (
+      typeof window !== "undefined" &&
+      user && !user.onBoardingComplete &&
+      !unsecurePaths.includes(pathname)
+    ) {
+      router.push("/signup/preferences");
+    }
   }, [user, router, pathname]);
 
   return (
