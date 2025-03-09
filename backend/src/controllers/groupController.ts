@@ -2,10 +2,59 @@ import expressAsyncHandler from "express-async-handler";
 import { NextFunction, Request, Response } from "express";
 import { Prisma } from "@prisma/client";
 import prisma from "../prismaClient";
+import { Group } from "../types";
 
 export const getGroups = expressAsyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      /* Parse Query Filters */
+      const { filters: queryFilters, groupId } = req.query;
+
+      let group : Group | null = null;
+
+      if (groupId) {
+        group = await prisma.group.findUnique({
+          where: { id: groupId.toString() },
+          include: {
+            preferences: {
+              include: {
+                preferences: {
+                  include: {
+                    preference: true,
+                  },
+                },
+                preferredHousing: {
+                  include: {
+                    housing: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // this'll contain the parsed query filters
+      let parsedFilters: {
+        preferences: string[];
+        housing: string[];
+        numRoomates: string[];
+        // openToJoin: Boolean;
+      } = { preferences: [], housing: [], numRoomates: [] };
+
+      // parse out the query filters
+      if (queryFilters) {
+        try {
+          parsedFilters = JSON.parse(queryFilters as string);
+          console.log(parsedFilters);
+        } catch (error) {
+          res.status(400).json({ error: "Invalid filters format" });
+          return;
+        }
+      }
+
+      // filter by group living preferences
+
       const filter = {} as Prisma.GroupWhereInput;
 
       // filter by group name
@@ -16,7 +65,26 @@ export const getGroups = expressAsyncHandler(
         };
       }
 
-      // add other filters here
+      // filter by group housing preferences
+      // Housing filter
+      if (parsedFilters.housing?.length) {
+        filter.preferences = {
+          preferredHousing: {
+            some: {
+              housing: {
+                OR: parsedFilters.housing.map((house) => {
+                  return {
+                    name: {
+                      equals: house,
+                      mode: "insensitive",
+                    },
+                  };
+                }),
+              },
+            },
+          },
+        };
+      }
 
       const groups = await prisma.group.findMany({ where: filter });
       res.json(groups);
