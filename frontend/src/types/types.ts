@@ -10,6 +10,10 @@ export interface User {
   preferences?: UserPreferences | null;
   requests: Request[];
   invites: Invite[];
+  major: string;
+  bio: string;
+  interests: string[];
+
 }
 
 export interface Group {
