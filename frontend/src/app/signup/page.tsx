@@ -16,12 +16,19 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [gender, setGender] = useState("");
   const { user } = useUser();
+  const [major, setMajor] = useState("");
 
   useEffect(() => {
     if (user) {
       window.location.href = "/home";
     }
   }, [user]);
+  
+  const [validationErrors, setValidationErrors] = useState({
+    year: false,
+    major: false,
+    gender: false,
+  });
 
   const yearOptions = [
     { value: "", label: "Select year" },
@@ -33,19 +40,175 @@ export default function SignupPage() {
   ];
 
   const genderOptions = [
+    { value: "", label: "Select an Option" },
     { value: "Male", label: "Male" },
     { value: "Female", label: "Female" },
     { value: "Non-Binary", label: "Non-Binary" },
     { value: "Other", label: "Other" },
   ]
 
+  const listedMajors = [
+    "African American Studies",
+    "African and Middle Eastern Studies",
+    "American Indian Studies",
+    "American Literature and Culture",
+    "Ancient Near East and Egyptology",
+    "Anthropology",
+    "Arabic",
+    "Art History",
+    "Asian American Studies",
+    "Asian Humanities",
+    "Asian Languages and Linguistics",
+    "Asian Religions",
+    "Asian Studies",
+    "Astrophysics",
+    "Atmospheric and Oceanic Sciences",
+    "Atmospheric and Oceanic Sciences/Mathematics",
+    "Biochemistry",
+    "Biology",
+    "Biophysics",
+    "Business Economics",
+    "Central and East European Languages and Cultures",
+    "Chemistry",
+    "Chemistry/Materials Science",
+    "Chicana and Chicano Studies",
+    "Chinese",
+    "Classical Civilization",
+    "Climate Science",
+    "Cognitive Science",
+    "Communication",
+    "Comparative Literature",
+    "Computational and Systems Biology",
+    "Data Theory",
+    "Disability Studies",
+    "Earth and Environmental Science",
+    "Ecology, Behavior, and Evolution",
+    "Economics",
+    "English",
+    "Environmental Science",
+    "European Language and Transcultural Studies",
+    "European Languages and Transcultural Studies with French and Francophone",
+    "European Languages and Transcultural Studies with German",
+    "European Languages and Transcultural Studies with Italian",
+    "European Languages and Transcultural Studies with Scandinavian",
+    "European Studies",
+    "Gender Studies",
+    "Geography",
+    "Geography/Environmental Studies",
+    "Geology",
+    "Geology/Engineering Geology",
+    "Geophysics",
+    "Global Studies",
+    "Greek",
+    "Greek and Latin",
+    "History",
+    "Human Biology and Society",
+    "International Development Studies",
+    "Iranian Studies",
+    "Japanese",
+    "Jewish Studies",
+    "Korean",
+    "Labor Studies",
+    "Latin",
+    "Latin American Studies",
+    "Linguistics",
+    "Linguistics and Anthropology",
+    "Linguistics and Asian Languages and Cultures",
+    "Linguistics and Computer Science",
+    "Linguistics and English",
+    "Linguistics and Philosophy",
+    "Linguistics and Psychology",
+    "Linguistics and Spanish",
+    "Linguistics, Applied",
+    "Marine Biology",
+    "Mathematics",
+    "Mathematics, Applied",
+    "Mathematics/Applied Science",
+    "Mathematics/Economics",
+    "Mathematics, Financial Actuarial",
+    "Mathematics for Teaching",
+    "Mathematics of Computation",
+    "Microbiology, Immunology, and Molecular Genetics",
+    "Middle Eastern Studies",
+    "Molecular, Cell, and Developmental Biology",
+    "Neuroscience",
+    "Nordic Studies",
+    "Philosophy",
+    "Physics",
+    "Physiological Science",
+    "Political Science",
+    "Portuguese and Brazilian Studies",
+    "Psychobiology",
+    "Psychology",
+    "Religion, Study of",
+    "Russian Language and Literature",
+    "Russian Studies",
+    "Sociology",
+    "Southeast Asian Studies",
+    "Spanish",
+    "Spanish and Community and Culture",
+    "Spanish and Linguistics",
+    "Spanish and Portuguese",
+    "Statistics and Data Science",
+    "Individual Field of Concentration",
+    "Architectural Studies",
+    "Art",
+    "Dance",
+    "Design | Media Arts",
+    "World Arts and Cultures",
+    "Aerospace Engineering",
+    "Bioengineering",
+    "Chemical Engineering",
+    "Civil Engineering",
+    "Computer Engineering",
+    "Computer Science",
+    "Computer Science and Engineering",
+    "Electrical Engineering",
+    "Materials Engineering",
+    "Mechanical Engineering",
+    "Engineering - Undeclared",
+    "Ethnomusicology",
+    "Global Jazz Studies",
+    "Musicology",
+    "Music Composition",
+    "Music Education",
+    "Music Industry",
+    "Music Performance",
+    "Nursing - Prelicensure",
+    "Public Affairs",
+    "Film and Television",
+    "Theater",
+    "Education and Social Transformation",
+    "Public Health"
+  ];
+
+  const uclaMajors = ["Select an option", "Undeclared", ...listedMajors.sort()].map(val => {
+    return { value: val === "Select an option" ? "" : val, label: val }
+  })
+
+  const validateForm = () => {
+    const errors = {
+      year: !year,
+      major: !major,
+      gender: !gender,
+    };
+    
+    setValidationErrors(errors);
+    return !Object.values(errors).some(hasError => hasError);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      setError("Please fill in all required fields");
+      return;
+    }
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/auth/register`,
         {
-          body: JSON.stringify({ email, password, year, name }),
+          body: JSON.stringify({ email, password, year, name, gender, major }),
           method: "POST",
           headers: { "Content-Type": "application/json" },
         }
@@ -67,7 +230,7 @@ export default function SignupPage() {
         body: JSON.stringify({ token: data.token }),
       });
 
-      window.location.href = "/home";
+      window.location.href = "/signup/preferences";
     } catch {
       setError("An unexpected error occurred.");
     }
@@ -118,6 +281,14 @@ export default function SignupPage() {
           required
         />
         <LoginFormMultiple
+          id="major"
+          label="Major"
+          value={major}
+          onChange={setMajor}
+          options={uclaMajors}
+          required
+        />
+        <LoginFormMultiple
           id="gender"
           label="Gender"
           value={gender}
@@ -125,7 +296,7 @@ export default function SignupPage() {
           options={genderOptions}
           required
         />
-        <SubmitButton>Next</SubmitButton>
+        <SubmitButton>Make Account</SubmitButton>
         <div className="flex flex-col justify-center items-center">
           {error && <small className="text-red-500">{error}</small>}
           <small className="mt-2 font-semibold">
