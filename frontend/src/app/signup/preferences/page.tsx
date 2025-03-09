@@ -168,6 +168,21 @@ export default function PreferencesPage() {
             return;
         }
 
+        const missingPreferences = [];
+        for (const [prefId, prefValue] of Object.entries(preferences)) {
+            if (!prefValue.option) {
+                const prefOption = preferenceOptions.find(p => p.id === prefId);
+                if (prefOption) {
+                    missingPreferences.push(prefOption.value);
+                }
+            }
+        }
+
+        if (missingPreferences.length > 0) {
+            setError(`Please fill in all preferences: ${missingPreferences.join(", ")}`);
+            return;
+        }
+
         setIsLoading(true);
 
         try {
