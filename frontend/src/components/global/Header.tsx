@@ -21,16 +21,24 @@ function ProfileDropdown({ user, logout }: { user: User; logout: () => void }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="h-10 aspect-square rounded-full bg-gray-100 border font-bold text-gray-500">{user.name[0]}</Button>
+        <Button
+          variant="outline"
+          className="h-10 aspect-square rounded-full bg-white border font-bold text-gray-500"
+        >
+          {user.name[0]}
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56 z-50">
         <DropdownMenuLabel>{user.name}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-            <Link href="/user" className="flex justify-between items-center w-full">
+            <Link
+              href="/user"
+              className="flex justify-between items-center w-full"
+            >
               Profile
-              <CircleUser size={20}/>
+              <CircleUser size={20} />
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
@@ -44,9 +52,12 @@ function ProfileDropdown({ user, logout }: { user: User; logout: () => void }) {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="flex justify-between items-center w-full text-red-500" onClick={logout}>
+        <DropdownMenuItem
+          className="flex justify-between items-center w-full text-red-500"
+          onClick={logout}
+        >
           Log out
-          <LogOut size={20}/>
+          <LogOut size={20} />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -57,7 +68,7 @@ export function Header({ className }: { className?: string }) {
   const { user, logout } = useUser();
   return (
     <SafeArea
-      className={`flex justify-between py-4 items-center min-h-12 bg-white border-b ${className}`}
+      className={`flex justify-between py-4 items-center min-h-12 shadow-lg bg-gray-100 border-b ${className}`}
     >
       <Link
         href="/"
@@ -66,8 +77,12 @@ export function Header({ className }: { className?: string }) {
         <span className="text-yellow-400">Room</span>inate
       </Link>
       <nav className={`gap-4 h-full items-center flex`}>
-        <Link href="/home">Home</Link>
-        <Link href="/home">Browse</Link>
+        <Link href="/home" className="hover:underline">
+          Home
+        </Link>
+        <Link href="/home" className="hover:underline">
+          Browse
+        </Link>
         {!user ? (
           <LoginButton />
         ) : (

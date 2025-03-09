@@ -26,6 +26,7 @@ model User {
   major     String?
   bio       String?
   interests String[]
+  onBoardingComplete Boolean? @default(false)
 
   preferences UserPreferences?
   requests    Request[]

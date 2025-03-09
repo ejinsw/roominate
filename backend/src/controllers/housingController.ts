@@ -72,3 +72,87 @@ export const getGroupsByHousingById = expressAsyncHandler(
     }
   }
 );
+
+export const createGroupHousingPreference = expressAsyncHandler(
+  async (
+    req: Request<
+      { id: string }, // groupId
+      {},
+      {
+        housingId?: string;
+      }
+    >,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { housingId } = req.body;
+      const { id } = req.params;
+      if (!housingId) {
+        res.status(400).json({ message: "Invalid request body" });
+        return;
+      }
+
+      const group = await prisma.group.findUnique({
+        where: { id: id },
+        include: {
+          preferences: true,
+        },
+      });
+
+      console.log("Passed group");
+
+      if (!group) {
+        res.status(404).json({ message: "group not found", id });
+        return;
+      }
+
+      let groupPreferences = group.preferences;
+      if (!groupPreferences) {
+        groupPreferences = await prisma.groupPreferences.create({
+          data: {
+            group: {
+              connect: { id: id },
+            },
+          },
+        });
+      }
+      console.log("connection established between groupPrefrences and group"); // ??
+
+      let existingHousing = null;
+      if (group?.preferences) {
+        existingHousing = await prisma.groupHousingPreferencesRelation.findUnique({
+          where: {
+            housingID_preferencesID: {
+              housingID: housingId,
+              preferencesID: groupPreferences.id, // id for the related groupPreferences
+            },
+          },
+        });
+      }
+
+      console.log("Passed preference");
+
+      if (existingHousing) {
+        res.status(400).json({ message: "Housing already exists" });
+        return;
+      }
+
+      const newHousing = await prisma.groupHousingPreferencesRelation.create({
+        data: {
+          housing: {
+            connect: { id: housingId },
+          },
+          preferences: {
+            connect: { id: groupPreferences.id },
+          },
+        },
+      });
+      console.log("Created new housing preference");
+
+      res.json({ newHousing });
+    } catch (error) {
+      res.status(500).json({ message: "Server error", error });
+    }
+  }
+);

@@ -9,7 +9,7 @@ export const getUsers = expressAsyncHandler(
       /* Parse Query Filters */
       const { filters: queryFilters, userId } = req.query;
 
-      let user : Express.User | null = null;
+      let user: Express.User | null = null;
 
       if (userId) {
         user = await prisma.user.findUnique({
@@ -97,14 +97,20 @@ export const getUsers = expressAsyncHandler(
         };
       }
 
+      //COPY FROM HERE
       // Preference filters
-      if (parsedFilters.preferences?.length && parsedFilters.preferences && user) {
+      if (
+        parsedFilters.preferences?.length &&
+        parsedFilters.preferences &&
+        user
+      ) {
         filter.preferences = {
           preferences: {
             every: {
               AND: parsedFilters.preferences.map((preference) => {
                 // this finds the matching user pref
-                const userPreference = (req.user as any)?.preferences?.preferences
+                const userPreference = (req.user as any)?.preferences
+                  ?.preferences
                   ? (req.user as any)?.preferences.preferences.find(
                       (val: any) => val.preference.value === preference
                     )
@@ -149,12 +155,182 @@ export const getUsers = expressAsyncHandler(
           },
         };
       }
+      //TO HERE
 
-      const users = await prisma.user.findMany({ where: filter });
+      const users = await prisma.user.findMany({
+        where: filter,
+        include: {
+          preferences: {
+            include: {
+              preferences: {
+                include: {
+                  preference: true,
+                },
+              },
+              preferredHousing: {
+                include: {
+                  housing: true,
+                },
+              },
+            },
+          },
+        },
+      });
       res.json(users);
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Server error", error });
     }
+  }
+);
+
+export const updateOnBoarding = expressAsyncHandler(
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      if (!req.user) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
+
+      const user: any = req.user;
+
+      if (user.onBoardingComplete) {
+        res.status(400).json({ message: "Onboarding already completed" });
+        return;
+      }
+
+      let finishedOnboarding = true;
+      const userPreferences = user.preferences?.preferences.map(
+        (val: any) => val.preference.value
+      );
+
+      const preferences = await prisma.preference.findMany();
+
+      for (const pref of preferences) {
+        if (!userPreferences?.includes(pref.value)) {
+          finishedOnboarding = false;
+          break;
+        }
+      }
+
+      await prisma.user.update({
+        where: { id: (req.user as any).id },
+        data: { onBoardingComplete: finishedOnboarding },
+      });
+
+      res.json({ message: "Onboarding updated" });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Server error", error });
+    }
+  }
+);
+
+export const updateMe = expressAsyncHandler(
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      if (!req.user) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
+
+      const user: any = req.user;
+
+      const { year, gender, name, major, bio, interests, preferences, housing } =
+        req.body;
+
+      const updateData = {} as Prisma.UserUpdateInput;
+
+      if (bio) updateData.bio = bio;
+
+      if (interests) updateData.interests = interests;
+
+      if (year) updateData.year = year;
+
+      if (gender) updateData.gender = gender;
+
+      if (name) updateData.name = name;
+
+      if (major) updateData.major = major;
+
+      if (preferences) {
+        await prisma.userPreferences.upsert({
+          where: { userID: user.id },
+          update: {
+            preferences: { deleteMany: {} },
+          },
+          create: {
+            userID: user.id,
+            preferences: {
+              create: preferences.map(
+                (pref: { id: string; option: string; importance: string }) => ({
+                  option: pref.option,
+                  importance: pref.importance,
+                  preference: {
+                    connect: { id: pref.id },
+                  },
+                })
+              ),
+            },
+          },
+        });
+
+        await prisma.userPreferences.update({
+          where: { userID: user.id },
+          data: {
+            preferences: {
+              create: preferences.map(
+                (pref: { id: string; option: string; importance: string }) => ({
+                  option: pref.option,
+                  importance: pref.importance,
+                  preference: {
+                    connect: { id: pref.id },
+                  },
+                })
+              ),
+            },
+          },
+        });
+      }
+
+      if (housing) {
+        await prisma.userPreferences.upsert({
+          where: { userID: user.id },
+          update: {
+            preferredHousing: { deleteMany: {} },
+          },
+          create: {
+            userID: user.id,
+            preferredHousing: {
+              create: housing.map((house: { id: string }) => ({
+                housing: {
+                  connect: { id: house.id },
+                },
+              })),
+            },
+          },
+        });
+
+        await prisma.userPreferences.update({
+          where: { userID: user.id },
+          data: {
+            preferredHousing: {
+              create: housing.map((house: { id: string }) => ({
+                housing: {
+                  connect: { id: house.id },
+                },
+              })),
+            },
+          },
+        });
+      }
+
+      const updatedUser = await prisma.user.update({
+        where: { id: user.id },
+        data: updateData,
+      });
+
+      res.json(updatedUser);
+    } catch (error) {}
   }
 );

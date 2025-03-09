@@ -179,11 +179,12 @@ export default function PreferencesPage() {
 
             const res = await fetch('/api/auth/token')
             const data = await res.json()
-            const token = data.token
+            const token = data.token.value
 
             await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/update`, {
                 method: "PATCH",
                 headers: {
+                    "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify({ bio, interests, preferences: formattedPreferences, housing: housingOptions.map(house => { return { id: house.id } }) })
@@ -198,9 +199,7 @@ export default function PreferencesPage() {
             })
 
             
-
             window.location.href="/home";
-
         } catch (error) {
             console.error(error);
             setError("Failed to save preferences. Please try again.");

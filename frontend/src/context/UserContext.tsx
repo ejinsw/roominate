@@ -30,7 +30,7 @@ export function UserProvider({
 }: UserProviderProps) {
   const [user, setUser] = useState<User | null>(initialUser);
   const router = useRouter();
-  const pathname = usePathname(); 
+  const pathname = usePathname();
 
   const logout = async () => {
     await fetch("/api/auth/token", { method: "DELETE" });
@@ -52,13 +52,20 @@ export function UserProvider({
       !unsecurePaths.includes(pathname)
     ) {
       router.push("/login");
-    }
-    if (
+    } else if (
       typeof window !== "undefined" &&
-      user && !user.onBoardingComplete &&
+      user &&
+      !user.onBoardingComplete &&
       !unsecurePaths.includes(pathname)
     ) {
       router.push("/signup/preferences");
+    } else if (
+      typeof window !== "undefined" &&
+      user &&
+      user.onBoardingComplete &&
+      pathname === "/signup/preferences"
+    ) {
+      router.push("/home");
     }
   }, [user, router, pathname]);
 
