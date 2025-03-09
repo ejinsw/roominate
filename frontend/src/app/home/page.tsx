@@ -3,6 +3,7 @@ import Banner from "@/components/home/Banner";
 import Filter from "@/components/home/Filter";
 import UserCard from "@/components/home/UserCard";
 import { useUser } from "@/context/UserContext";
+import { getHousing, getPreferences } from "@/lib/utils";
 import { Housing, Preference, User } from "@/types/types";
 import { useEffect, useState } from "react";
 
@@ -33,27 +34,6 @@ async function getUser(
   }
 }
 
-async function getPreferences(): Promise<Preference[]> {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/preferences`);
-    const data = await res.json();
-    return data.preferences;
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
-}
-
-async function getHousing(): Promise<Housing[]> {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/housing`);
-    const data = await res.json();
-    return data.housing;
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
-}
 
 export default function Home() {
   const { user } = useUser();
