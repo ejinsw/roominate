@@ -4,10 +4,16 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
+import passport from "passport";
 // import serverless from "serverless-http";
 
-import helloRouter from "./routes/helloRouter";
 import userRouter from "./routes/userRouter";
+import authRouter from "./routes/authRouter";
+import preferenceRouter from "./routes/preferenceRouter";
+import groupRouter from "./routes/groupRouter";
+import housingRouter from "./routes/housingRouter";
+import inviteRouter from "./routes/inviteRouter";
+import requestRouter from "./routes/requestRouter";
 
 dotenv.config();
 
@@ -20,13 +26,28 @@ app.use(morgan("dev"));
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(cors());
+app.use(passport.initialize());
+
+// Token validator
+app.get(
+  "/api/validate-token",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    res.json({ user: req.user, valid: true });
+  }
+);
 
 /**
  * Routes
  */
 // TODO: Add routes... i.e. app.use("/<route>", <router>)
-app.use("/", helloRouter);
-app.use("/user", userRouter);
+app.use("/api", userRouter);
+app.use("/api", authRouter);
+app.use("/api", preferenceRouter);
+app.use("/api", housingRouter);
+app.use("/api", groupRouter);
+app.use("/api", inviteRouter);
+app.use("/api", requestRouter);
 
 // Error handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
