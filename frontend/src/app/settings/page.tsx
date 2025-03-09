@@ -2,41 +2,7 @@
 
 import React, { useState } from "react";
 import { User, UserPreferences } from "@/types/types";
-
-// Add mock user data
-const mockUser: User = {
-  id: "1",
-  name: "John Doe",
-  email: "john.doe@example.com",
-  year: 2024,
-  group: {
-    id: "g1",
-    name: "Study Group A",
-  },
-  preferences: {
-    id: "p1",
-    preferences: [
-      {
-        id: "pref1",
-        preference: {
-          id: "cat1",
-          category: "Study Time",
-        },
-        option: "Evening",
-        importance: "High",
-      },
-      {
-        id: "pref2",
-        preference: {
-          id: "cat2",
-          category: "Study Location",
-        },
-        option: "Library",
-        importance: "Medium",
-      },
-    ],
-  },
-};
+import { useUser } from "@/context/UserContext";
 
 // Constants for dropdown options
 const GENDER_OPTIONS = ["Male", "Female", "Non-Binary", "Other"];
@@ -61,12 +27,6 @@ const PREFERENCE_CATEGORIES = [
   "Bathroom Type",
   "Cleaning Habits",
 ];
-
-// Add getUser function
-const getUser = (): User => {
-  // In a real application, this would fetch from an API
-  return mockUser;
-};
 
 interface SettingsPageProps {
   user: User;
@@ -94,28 +54,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ user, onSave }) => {
       <h1 className="text-2xl font-bold mb-6">Settings</h1>
 
       <div className="mb-8">
-        <div className="flex items-center gap-4">
-          <div className="w-24 h-24 rounded-full bg-gray-200 overflow-hidden">
-            {/* Profile picture preview or placeholder */}
-            {profilePicture ? (
-              <img
-                src={URL.createObjectURL(profilePicture)}
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-400">
-                No Image
-              </div>
-            )}
-          </div>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setProfilePicture(e.target.files?.[0] || null)}
-            className="block"
-          />
-        </div>
+        <div className="flex items-center gap-4"></div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -179,11 +118,14 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ user, onSave }) => {
 
 // Modify the default export to use the mock data
 export default function SettingsPageWrapper() {
-  const user = getUser();
+  const { user } = useUser();
   const handleSave = async (updatedUser: Partial<User>) => {
     console.log("Saving user updates:", updatedUser);
     // In a real application, this would make an API call
   };
+  if (user === null) {
+    return <div>No user found</div>; // Handle the case where user is null
+  }
 
   return <SettingsPage user={user} onSave={handleSave} />;
 }
