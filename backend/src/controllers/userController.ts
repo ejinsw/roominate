@@ -73,7 +73,7 @@ export const getUsers = expressAsyncHandler(
 
       // Id filter
       if (req.query.id) {
-        filter.id = { contains: req.query.id.toString(), mode: "insensitive" };
+        filter.id = { equals: req.query.id as string };
       }
 
       // Gender filter
