@@ -12,6 +12,11 @@ const MAX_BIO_LENGTH = 300;
 const MAX_INTERESTS = 7;
 const MAX_HOUSING_PREFERENCES = 5;
 
+interface SelectedHousing {
+  id: string;
+  name: string;
+}
+
 async function getPreferences(): Promise<Preference[]> {
     try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/preferences`);
@@ -45,7 +50,7 @@ export default function PreferencesPage() {
     const [interestError, setInterestError] = useState("");
 
     const [housingOptions, setHousingOptions] = useState<Housing[]>([]);
-    const [selectedHousingOptions, setSelectedHousingOptions] = useState<string[]>([]);
+    const [selectedHousingOptions, setSelectedHousingOptions] = useState<SelectedHousing[]>([]);
     const [selectedHousing, setSelectedHousing] = useState("");
     const [housingError, setHousingError] = useState("");
 
@@ -127,7 +132,7 @@ export default function PreferencesPage() {
             return;
         }
 
-        if (selectedHousingOptions.includes(selectedHousing)) {
+        if (selectedHousingOptions.some(option => option.id === selectedHousing)) {
             setHousingError("This housing option was already added");
             return;
         }
@@ -137,12 +142,19 @@ export default function PreferencesPage() {
             return;
         }
 
-        setSelectedHousingOptions([...selectedHousingOptions, selectedHousing]);
-        setSelectedHousing("");
+        const selectedOption = housingOptions.find(option => option.id === selectedHousing);
+        
+        if (selectedOption) {
+            setSelectedHousingOptions([...selectedHousingOptions, {
+                id: selectedOption.id || "",
+                name: selectedOption.name || ""
+            }]);
+            setSelectedHousing("");
+        }
     };
 
-    const handleRemoveHousing = (housing: string) => {
-        setSelectedHousingOptions(selectedHousingOptions.filter(h => h !== housing));
+    const handleRemoveHousing = (housingId: string) => {
+        setSelectedHousingOptions(selectedHousingOptions.filter(h => h.id !== housingId));
         setHousingError("");
     };
 
@@ -183,6 +195,12 @@ export default function PreferencesPage() {
             return;
         }
 
+        if (selectedHousingOptions.length < 1) {
+            setError(`Please select at least 1 housing preference`);
+            setHousingError(`At least 1 housing preference is required`);
+            return;
+        }
+
         setIsLoading(true);
 
         try {
@@ -196,23 +214,30 @@ export default function PreferencesPage() {
             const data = await res.json()
             const token = data.token.value
 
+            console.log("IN UPDATING")
+            
             await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/update`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
-                body: JSON.stringify({ bio, interests, preferences: formattedPreferences, housing: housingOptions.map(house => { return { id: house.id } }) })
+                body: JSON.stringify({ 
+                    bio, 
+                    interests, 
+                    preferences: formattedPreferences, 
+                    housing: selectedHousingOptions.map(house => ({ id: house.id })) 
+                })
             })
+
+            console.log("IN CHANGING ONBOARDING")
 
             await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/update/on-boarding`, {
                 method: "PATCH",
                 headers: {
                     "Authorization": `Bearer ${token}`
                 },
-
             })
-
             
             window.location.href="/home";
         } catch (error) {
@@ -323,22 +348,26 @@ export default function PreferencesPage() {
                 </div>
 
                 <div className="space-y-6 mt-8">
-                    <h3 className="text-lg font-medium text-[#2774AE] border-b pb-2">Housing Preferences</h3>
+                    <h3 className="text-lg font-medium text-[#2774AE] border-b pb-2">
+                        Housing Preferences
+                    </h3>
 
                     <div className="space-y-2">
                         <div className="flex justify-between">
-                            <label className="block text-gray-700 font-medium">Preferred Housing Options</label>
+                            <label className="block text-gray-700 font-medium">
+                                Preferred Housing Options
+                            </label>
                             <span className={`text-xs ${selectedHousingOptions.length >= MAX_HOUSING_PREFERENCES * 0.8 ? 'text-red-500' : 'text-gray-500'}`}>
                                 {selectedHousingOptions.length}/{MAX_HOUSING_PREFERENCES}
                             </span>
                         </div>
                         <div className="flex flex-wrap gap-2 mb-2 min-h-[40px]">
                             {selectedHousingOptions.map(housing => (
-                                <div key={housing} className="bg-green-100 text-green-800 px-3 py-1 rounded-full flex items-center">
-                                    <span>{housing}</span>
+                                <div key={housing.id} className="bg-green-100 text-green-800 px-3 py-1 rounded-full flex items-center">
+                                    <span>{housing.name}</span>
                                     <button
                                         type="button"
-                                        onClick={() => handleRemoveHousing(housing)}
+                                        onClick={() => handleRemoveHousing(housing.id)}
                                         className="ml-2 text-green-600 hover:text-green-800"
                                     >
                                         ×
@@ -346,7 +375,7 @@ export default function PreferencesPage() {
                                 </div>
                             ))}
                             {selectedHousingOptions.length === 0 && (
-                                <p className="text-sm text-gray-500 italic">No housing preferences added yet</p>
+                                <p className="text-sm text-red-500 italic">Please select at least one housing preference</p>
                             )}
                         </div>
                         <div className="flex">
@@ -354,11 +383,15 @@ export default function PreferencesPage() {
                                 value={selectedHousing}
                                 onChange={(e) => setSelectedHousing(e.target.value)}
                                 disabled={selectedHousingOptions.length >= MAX_HOUSING_PREFERENCES}
-                                className="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-[#2774AE]"
+                                className={`flex-1 px-4 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-[#2774AE] ${
+                                    selectedHousingOptions.length < 1 && housingError 
+                                        ? 'border-red-300 bg-red-50' 
+                                        : 'border-gray-300'
+                                }`}
                             >
                                 <option value="">Select housing option</option>
                                 {housingOptions.map(option => (
-                                    <option key={option.id} value={option.name || ""}>
+                                    <option key={option.id} value={option.id || ""}>
                                         {option.name}
                                     </option>
                                 ))}
