@@ -67,7 +67,7 @@ export default function SignupPage() {
         body: JSON.stringify({ token: data.token }),
       });
 
-      window.location.href = "/home";
+      window.location.href = "/signup/preferences";
     } catch {
       setError("An unexpected error occurred.");
     }
@@ -125,7 +125,7 @@ export default function SignupPage() {
           options={genderOptions}
           required
         />
-        <SubmitButton>Next</SubmitButton>
+        <SubmitButton>Make Account</SubmitButton>
         <div className="flex flex-col justify-center items-center">
           {error && <small className="text-red-500">{error}</small>}
           <small className="mt-2 font-semibold">
