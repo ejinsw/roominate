@@ -42,7 +42,6 @@ const UserCard = ({ user }: UserCardProps) => {
   
   const displayPrefs = getDisplayPreferences();
 
-  // Smaller, more compact badges
   const getImportanceBadge = (importance: string) => {
     switch (importance) {
       case "High":
@@ -70,6 +69,9 @@ const UserCard = ({ user }: UserCardProps) => {
           </div>
           <div>
             <h2 className="text-lg font-semibold text-[#2774AE]">{user.name}</h2>
+            <p className="text-sm text-gray-600">
+              {user.gender || "Gender not specified"}
+            </p> 
             <p className="text-sm text-gray-600">
               {user.year ? 
                 `Year ${user.year === 5 ? "5+" : user.year}` : 

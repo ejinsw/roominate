@@ -23,6 +23,12 @@ export default function SignupPage() {
       window.location.href = "/home";
     }
   }, [user]);
+  
+  const [validationErrors, setValidationErrors] = useState({
+    year: false,
+    major: false,
+    gender: false,
+  });
 
   const yearOptions = [
     { value: "", label: "Select year" },
@@ -34,6 +40,7 @@ export default function SignupPage() {
   ];
 
   const genderOptions = [
+    { value: "", label: "Select an Option" },
     { value: "Male", label: "Male" },
     { value: "Female", label: "Female" },
     { value: "Non-Binary", label: "Non-Binary" },
@@ -175,12 +182,28 @@ export default function SignupPage() {
     "Public Health"
   ];
 
-  const uclaMajors = ["Undeclared", ...listedMajors.sort()].map(val => {
-    return { value: val, label: val }
+  const uclaMajors = ["Select an option", "Undeclared", ...listedMajors.sort()].map(val => {
+    return { value: val === "Select an option" ? "" : val, label: val }
   })
+
+  const validateForm = () => {
+    const errors = {
+      year: !year,
+      major: !major,
+      gender: !gender,
+    };
+    
+    setValidationErrors(errors);
+    return !Object.values(errors).some(hasError => hasError);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      setError("Please fill in all required fields");
+      return;
+    }
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/auth/register`,

@@ -54,6 +54,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
             name={user.name}
             year={user.year?.toString() ?? "Year not selected"}
             major={user.major ?? "Major not selected"}
+            gender={user.gender ?? "Gender not specified"}
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -63,11 +64,32 @@ export default function UserProfile({ params }: { params: { id: string } }) {
 
               <h3 className="text-xl font-bold text-[#2774AE] mt-6">Interests</h3>
               <InterestBubble interests={user.interests} />
+
+              <h3 className="text-xl font-bold text-[#2774AE] mt-6">Housing Preferences</h3>
+              <div className="mt-3">
+                {user.preferences?.preferredHousing && user.preferences?.preferredHousing.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {user.preferences?.preferredHousing.map((housePref, index) => (
+                      <span key={index} className="inline-block bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
+                        {housePref.housing.name}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 italic">No housing preferences available</p>
+                )}
+                </div>
             </section>
 
             <section className="space-y-4 bg-white/80 rounded-xl p-6 shadow-md">
               <h2 className="text-2xl font-bold text-[#2774AE]">Roommate Preferences</h2>
-              <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <div className="text-sm text-gray-500">Scroll to see all preferences</div>
+              </div>
+              <div
+                className="space-y-4 overflow-y-auto max-h-64 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
+                style={{ overflowY: 'scroll' }}
+              >
                 {user.preferences ? (
                   <>
                     <div className="grid grid-cols-8 gap-2 pb-2 border-b border-gray-200 text-sm">
