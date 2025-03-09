@@ -53,8 +53,6 @@ export const getGroups = expressAsyncHandler(
         }
       }
 
-      // filter by group living preferences
-
       const filter = {} as Prisma.GroupWhereInput;
 
       // filter by group name
@@ -66,7 +64,6 @@ export const getGroups = expressAsyncHandler(
       }
 
       // filter by group housing preferences
-      // Housing filter
       if (parsedFilters.housing?.length) {
         filter.preferences = {
           preferredHousing: {
@@ -85,6 +82,8 @@ export const getGroups = expressAsyncHandler(
           },
         };
       }
+
+      // filter by group living preferences (Jason)
 
       const groups = await prisma.group.findMany({ where: filter });
       res.json(groups);
@@ -186,5 +185,46 @@ export const getGroupById = expressAsyncHandler(
       console.log(error);
       res.status(500).json({ message: "Server error", error });
     }
+  }
+);
+
+export const updateGroups = expressAsyncHandler(
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      if (!req.user) {
+        res.status(401).json({ message: "Unauthorized user" });
+        return;
+      }
+
+      const { id, name, description, numRoomates, openToJoin } = req.body; // pass in group id as id
+
+      if (req.user.groupID !== id) { // check if user is in the group
+        res.status(401).json({ message: "Unauthorized, user is not in group" });
+        return;
+      }
+
+      // const user: any = req.user;
+
+      const group = await prisma.group.findUnique({
+        where: { name },
+      });
+
+      const updateData = {} as Prisma.GroupUpdateInput;
+
+      if (name) updateData.name = name; // note: need to check if new name is unique
+
+      if (numRoomates) updateData.numRoomates = numRoomates;
+
+      if (description) updateData.description = description;
+
+      if (openToJoin) updateData.openToJoin = openToJoin;
+
+      const updatedGroup = await prisma.group.update({
+        where: { id: id },
+        data: updateData,
+      });
+
+      res.json(updatedGroup);
+    } catch (error) {}
   }
 );

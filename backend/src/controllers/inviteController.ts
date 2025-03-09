@@ -132,3 +132,9 @@ export const getInvites = expressAsyncHandler(
     res.status(200).json(invites);
   }
 );
+
+export const updateGroups = expressAsyncHandler(
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    
+  }
+);
