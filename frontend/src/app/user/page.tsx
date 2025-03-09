@@ -28,15 +28,15 @@ export default function UserProfile() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <section className="space-y-4 bg-white/80 rounded-xl p-6 shadow-md">
               <h2 className="text-2xl font-bold text-[#2774AE]">About Me</h2>
-              <p className="text-gray-800">{"No bio available"}</p>
+              <p className="text-gray-800">{(user.bio) ? user.bio : "No bio available"}</p>
 
               <h3 className="text-xl font-bold text-[#2774AE] mt-6">Interests</h3>
-              <InterestBubble interests={[]} />
+              <InterestBubble interests={user.interests} />
             </section>
 
             <section className="space-y-4 bg-white/80 rounded-xl p-6 shadow-md">
               <h2 className="text-2xl font-bold text-[#2774AE]">Roommate Preferences</h2>
-              <div className="space-y-4">
+              <div className="space-y-4 overflow-y-auto max-h-64">
                 {user.preferences ? (
                   <>
                     <div className="grid grid-cols-8 gap-2 pb-2 border-b border-gray-200 text-sm">
