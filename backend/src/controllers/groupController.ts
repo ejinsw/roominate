@@ -46,6 +46,7 @@ export const getGroups = expressAsyncHandler(
       if (queryFilters) {
         try {
           parsedFilters = JSON.parse(queryFilters as string);
+          console.log(parsedFilters);
         } catch (error) {
           res.status(400).json({ error: "Invalid filters format" });
           return;
@@ -71,10 +72,10 @@ export const getGroups = expressAsyncHandler(
           preferredHousing: {
             some: {
               housing: {
-                OR: parsedFilters.housing.map((housing) => {
+                OR: parsedFilters.housing.map((house) => {
                   return {
                     name: {
-                      equals: housing,
+                      equals: house,
                       mode: "insensitive",
                     },
                   };
