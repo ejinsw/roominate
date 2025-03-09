@@ -2,6 +2,7 @@ import expressAsyncHandler from "express-async-handler";
 import { NextFunction, Request, Response } from "express";
 import { Prisma } from "@prisma/client";
 import prisma from "../prismaClient";
+import { Group } from "../types";
 
 export const getGroups = expressAsyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -9,7 +10,7 @@ export const getGroups = expressAsyncHandler(
       /* Parse Query Filters */
       const { filters: queryFilters, groupId } = req.query;
 
-      let group : Express.Group | null = null;
+      let group : Group | null = null;
 
       if (groupId) {
         group = await prisma.group.findUnique({
@@ -51,8 +52,6 @@ export const getGroups = expressAsyncHandler(
         }
       }
 
-      // filter by group housing preferences
-
       // filter by group living preferences
 
       const filter = {} as Prisma.GroupWhereInput;
@@ -62,6 +61,27 @@ export const getGroups = expressAsyncHandler(
         filter.name = {
           contains: req.query.name.toString(),
           mode: "insensitive",
+        };
+      }
+
+      // filter by group housing preferences
+      // Housing filter
+      if (parsedFilters.housing?.length) {
+        filter.preferences = {
+          preferredHousing: {
+            some: {
+              housing: {
+                OR: parsedFilters.housing.map((housing) => {
+                  return {
+                    name: {
+                      equals: housing,
+                      mode: "insensitive",
+                    },
+                  };
+                }),
+              },
+            },
+          },
         };
       }
 
