@@ -410,12 +410,6 @@ export default function PreferencesPage() {
 
                 <div className="flex flex-col justify-center items-center mt-4">
                     {error && <small className="text-red-500">{error}</small>}
-                    <small className="mt-2 font-semibold">
-                        Want to do this later?{" "}
-                        <Link href="/home" className="hover:text-blue-500">
-                            Skip for now
-                        </Link>
-                    </small>
                 </div>
             </form>
         </div>
