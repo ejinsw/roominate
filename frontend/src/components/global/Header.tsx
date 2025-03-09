@@ -15,7 +15,8 @@ import {
 } from "../shadcn/Dropdown";
 import { Button } from "../shadcn/Button";
 import { User } from "@/types/types";
-import { CircleUser, LogOut, Settings } from "lucide-react";
+import { CircleUser, LogOut, Search, Settings } from "lucide-react";
+import { useState } from "react";
 
 function ProfileDropdown({ user, logout }: { user: User; logout: () => void }) {
   return (
@@ -64,6 +65,35 @@ function ProfileDropdown({ user, logout }: { user: User; logout: () => void }) {
   );
 }
 
+function SearchBar() {
+  const [search, setSearch] = useState("");
+
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!search) {
+      window.location.href = "/home";
+    } else {
+      window.location.href = `/home?query=${search}`;
+    }
+  };
+
+  return (
+    <form onSubmit={handleFormSubmit} className="flex items-center">
+      <div className="flex items-center border rounded-lg overflow-hidden bg-white">
+        <Search className="text-gray-500 ml-2" />
+        <input
+          type="text"
+          placeholder="Search roommates..."
+          className="bg-transparent border-none focus:outline-none px-2 py-1"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+    </form>
+  );
+}
+
 export function Header({ className }: { className?: string }) {
   const { user, logout } = useUser();
   return (
@@ -77,16 +107,13 @@ export function Header({ className }: { className?: string }) {
         <span className="text-yellow-400">Room</span>inate
       </Link>
       <nav className={`gap-4 h-full items-center flex`}>
-        <Link href="/home" className="hover:underline">
-          Home
-        </Link>
-        <Link href="/home" className="hover:underline">
-          Browse
-        </Link>
         {!user ? (
           <LoginButton />
         ) : (
-          <ProfileDropdown user={user} logout={logout} />
+          <>
+            <SearchBar />
+            <ProfileDropdown user={user} logout={logout} />
+          </>
         )}
       </nav>
     </SafeArea>

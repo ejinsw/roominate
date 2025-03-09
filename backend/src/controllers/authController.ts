@@ -8,7 +8,7 @@ export const register = expressAsyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       // Destructure data from request body
-      const { name, email, password, year } = req.body;
+      const { name, email, password, year, gender, major } = req.body;
 
 
       if (!name || !email || !password || !year) {
@@ -32,6 +32,8 @@ export const register = expressAsyncHandler(
             name,
             email,
             password: hashedPassword,
+            gender,
+            major
           },
         });
 

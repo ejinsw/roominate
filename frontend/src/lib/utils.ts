@@ -42,3 +42,30 @@ export async function getUserById(id: string): Promise<User | null> {
     return null;
   }
 }
+
+export async function getUser(
+  name: string,
+  userId: string,
+  filters: {
+    gender: string[];
+    preferences: string[];
+    housing: string[];
+    year: string[];
+  } = { gender: [], preferences: [], housing: [], year: [] }
+): Promise<User[]> {
+  try {
+    const queryParams = new URLSearchParams({
+      name,
+      filters: JSON.stringify(filters),
+    }).toString();
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/users?userId=${userId}&${queryParams}`
+    );
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return [];
+  }
+}

@@ -334,3 +334,23 @@ export const updateMe = expressAsyncHandler(
     } catch (error) {}
   }
 );
+
+export const deleteMe = expressAsyncHandler(
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      if (!req.user) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
+
+      await prisma.user.delete({
+        where: { id: (req.user as any).id },
+      });
+
+      res.json({ message: "User deleted successfully" });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Server error", error });
+    }
+  }
+);
