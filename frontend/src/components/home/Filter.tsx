@@ -4,6 +4,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 
 interface Props {
+  type: string;
   filters: {
     label: string;
     options: string[];
@@ -16,6 +17,7 @@ interface Props {
 }
 
 const Filter = ({
+  type,
   filters,
   searchInput,
   setSearchInput,
@@ -48,7 +50,7 @@ const Filter = ({
 
   return (
     <div
-      className={`flex flex-col w-64 min-h-full bg-gray-50 p-5 border-r border-gray-200 ${className}`}
+      className={`flex flex-col w-64 min-h-full ${className}`}
     >
       {/* Search by Name Filter Section */}
       <div className="mb-6">
@@ -57,7 +59,7 @@ const Filter = ({
         </h3>
         <input
           type="text"
-          placeholder="Name"
+          placeholder={`Search ${type}s...`}
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"

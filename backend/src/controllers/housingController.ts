@@ -156,3 +156,5 @@ export const createGroupHousingPreference = expressAsyncHandler(
     }
   }
 );
+
+// route for updating housing preference

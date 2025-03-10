@@ -8,13 +8,6 @@ interface UserCardProps {
   user: User;
 }
 
-interface DisplayPreference {
-  name: string;
-  value: string;
-  importance: string;
-  sortOrder: number;
-}
-
 const UserCard = ({ user }: UserCardProps) => {
   const getDisplayPreferences = () => {
     if (!user.preferences || !user.preferences.preferences || user.preferences.preferences.length === 0) {
