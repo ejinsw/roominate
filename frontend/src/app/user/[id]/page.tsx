@@ -8,6 +8,8 @@ import InterestBubble from "@/components/user/InterestBubble";
 import { useUser } from "@/context/UserContext";
 import { getUserById } from "@/lib/utils";
 import { User } from "@/types/types";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 export default function UserProfile({ params }: { params: { id: string } }) {
   const [exampleUser] = useState({
@@ -44,9 +46,16 @@ export default function UserProfile({ params }: { params: { id: string } }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-[#E6F3FF]">
-      {/* <NavBar /> */}
 
       <div className="max-w-6xl mx-auto px-4 py-6">
+
+        <Link 
+          href="/home" 
+          className="inline-flex items-center gap-2 mb-4 px-4 py-2 bg-[#2774AE] text-white rounded-lg hover:bg-[#1D5A8A] transition-colors duration-200"
+        >
+          <ArrowLeft size={18} />
+          <span>Browse Roommates</span>
+        </Link>
         <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-gray-200">
 
           <CircleProfile

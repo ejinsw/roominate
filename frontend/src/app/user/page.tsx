@@ -6,6 +6,7 @@ import CircleProfile from "@/components/user/CircleProfile";
 import InterestBubble from "@/components/user/InterestBubble";
 import { Settings } from "lucide-react";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export default function UserProfile() {
   const { user } = useUser();
@@ -18,6 +19,13 @@ export default function UserProfile() {
     <div className="min-h-screen bg-gradient-to-b from-white to-[#E6F3FF]">
 
       <div className="max-w-6xl mx-auto px-4 py-6">
+        <Link 
+          href="/home" 
+          className="inline-flex items-center gap-2 mb-4 px-4 py-2 bg-[#2774AE] text-white rounded-lg hover:bg-[#1D5A8A] transition-colors duration-200"
+        >
+          <ArrowLeft size={18} />
+          <span>Browse Roommates</span>
+        </Link>
         <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-gray-200">
 
           <Link

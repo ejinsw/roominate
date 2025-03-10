@@ -310,6 +310,7 @@ export default function PreferencesPage() {
             <div className="flex justify-between">
               <label htmlFor="bio" className="block text-gray-700 font-medium">
                 Bio (Optional)
+                <span className="text-sm text-gray-500 ml-2">(add socials so roommates can contact you!)</span>
               </label>
               <span
                 className={`text-xs ${
