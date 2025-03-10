@@ -73,6 +73,7 @@ export async function getUser(
 
 export async function getGroup(
   name: string,
+  userId: string,
   filters: {
     preferences: string[];
     housing: string[];
@@ -85,7 +86,7 @@ export async function getGroup(
     }).toString();
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/groups/search?${queryParams}`
+      `${process.env.NEXT_PUBLIC_API_URL}/groups/search?userId?=${userId}&${queryParams}`
     );
     const data = await res.json();
     return data.groups;
