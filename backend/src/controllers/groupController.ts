@@ -86,6 +86,7 @@ export const getGroups = expressAsyncHandler(
       const groups = await prisma.group.findMany({
         where: filter,
         include: {
+          users: true,
           preferences: {
             include: {
               preferences: {

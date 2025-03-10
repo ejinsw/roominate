@@ -1,11 +1,10 @@
-import { Housing, Preference, User } from "@/types/types";
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { Group, Housing, Preference, User } from "@/types/types";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
-
 
 export async function getPreferences(): Promise<Preference[]> {
   try {
@@ -31,7 +30,9 @@ export async function getHousing(): Promise<Housing[]> {
 
 export async function getUserById(id: string): Promise<User | null> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users?id=${id}`);
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/users?id=${id}`
+    );
     const data = await res.json();
     if (!data.length) {
       return null;
@@ -66,6 +67,30 @@ export async function getUser(
     return data;
   } catch (error) {
     console.error("Error fetching users:", error);
+    return [];
+  }
+}
+
+export async function getGroup(
+  name: string,
+  filters: {
+    preferences: string[];
+    housing: string[];
+  } = { preferences: [], housing: [] }
+): Promise<Group[]> {
+  try {
+    const queryParams = new URLSearchParams({
+      name,
+      filters: JSON.stringify(filters),
+    }).toString();
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/groups/search?${queryParams}`
+    );
+    const data = await res.json();
+    return data.groups;
+  } catch (error) {
+    console.error("Error fetching group:", error);
     return [];
   }
 }
