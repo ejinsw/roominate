@@ -251,7 +251,7 @@ export const updateGroups = expressAsyncHandler(
 
       const { id, name, description, numRoomates, openToJoin } = req.body; // pass in group id as id
 
-      if (req.user.groupID !== id) {
+      if ((req.user as any).groupID !== id) {
         // check if user is in the group
         res.status(401).json({ message: "Unauthorized, user is not in group" });
         return;
