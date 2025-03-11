@@ -7,6 +7,7 @@ import { SubmitButton } from "@/components/login/SubmitButton";
 import Link from "next/link";
 import { useUser } from "@/context/UserContext";
 import { Housing, Preference } from "@/types/types";
+import { Trash2, ArrowLeft } from "lucide-react";
 
 const MAX_BIO_LENGTH = 300;
 const MAX_INTERESTS = 7;
@@ -52,6 +53,10 @@ export default function SettingsPage() {
   const [newInterest, setNewInterest] = useState("");
   const [interestError, setInterestError] = useState("");
 
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+
   const [housingOptions, setHousingOptions] = useState<Housing[]>([]);
   const [selectedHousingOptions, setSelectedHousingOptions] = useState<
     SelectedHousing[]
@@ -69,6 +74,40 @@ export default function SettingsPage() {
     { value: "Medium", label: "Medium importance" },
     { value: "Low", label: "Low importance" },
   ];
+
+  const handleDeleteAccount = async () => {
+    try {
+      setIsDeleting(true);
+      setDeleteError("");
+
+      const res = await fetch("/api/auth/token");
+      const data = await res.json();
+      const token = data.token.value;
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/delete`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete account");
+      }
+
+      await fetch("/api/auth/logout", {
+        method: "POST"
+      });
+
+      window.location.href = "/";
+
+    } catch (error) {
+      console.error("Delete account error:", error);
+      setDeleteError("Failed to delete account. Please try again later.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -318,6 +357,16 @@ export default function SettingsPage() {
         className="text-4xl font-bold text-[#2774AE] drop-shadow-md relative"
       />
 
+      <div className="w-full max-w-2xl flex justify-start mb-2">
+        <Link
+          href="/home"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-[#2774AE] text-white rounded-lg hover:bg-[#1D5A8A] transition-colors duration-200"
+        >
+          <ArrowLeft size={18} />
+          <span>Home</span>
+        </Link>
+      </div>
+
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-2xl space-y-6 bg-white p-8 rounded-lg shadow-lg relative"
@@ -368,11 +417,10 @@ export default function SettingsPage() {
                 Bio (Optional)
               </label>
               <span
-                className={`text-xs ${
-                  bio.length >= MAX_BIO_LENGTH * 0.9
-                    ? "text-red-500"
-                    : "text-gray-500"
-                }`}
+                className={`text-xs ${bio.length >= MAX_BIO_LENGTH * 0.9
+                  ? "text-red-500"
+                  : "text-gray-500"
+                  }`}
               >
                 {bio.length}/{MAX_BIO_LENGTH}
               </span>
@@ -394,11 +442,10 @@ export default function SettingsPage() {
                 Interests
               </label>
               <span
-                className={`text-xs ${
-                  interests.length >= MAX_INTERESTS * 0.8
-                    ? "text-red-500"
-                    : "text-gray-500"
-                }`}
+                className={`text-xs ${interests.length >= MAX_INTERESTS * 0.8
+                  ? "text-red-500"
+                  : "text-gray-500"
+                  }`}
               >
                 {interests.length}/{MAX_INTERESTS}
               </span>
@@ -438,11 +485,10 @@ export default function SettingsPage() {
                 type="button"
                 onClick={handleAddInterest}
                 disabled={interests.length >= MAX_INTERESTS}
-                className={`${
-                  interests.length >= MAX_INTERESTS
-                    ? "bg-gray-400"
-                    : "bg-[#2774AE] hover:bg-[#407ead]"
-                } text-white px-4 py-2 rounded-r-lg transition-colors`}
+                className={`${interests.length >= MAX_INTERESTS
+                  ? "bg-gray-400"
+                  : "bg-[#2774AE] hover:bg-[#407ead]"
+                  } text-white px-4 py-2 rounded-r-lg transition-colors`}
               >
                 Add
               </button>
@@ -464,11 +510,10 @@ export default function SettingsPage() {
                 Reselect Preferred Housing Options
               </label>
               <span
-                className={`text-xs ${
-                  selectedHousingOptions.length >= MAX_HOUSING_PREFERENCES * 0.8
-                    ? "text-red-500"
-                    : "text-gray-500"
-                }`}
+                className={`text-xs ${selectedHousingOptions.length >= MAX_HOUSING_PREFERENCES * 0.8
+                  ? "text-red-500"
+                  : "text-gray-500"
+                  }`}
               >
                 {selectedHousingOptions.length}/{MAX_HOUSING_PREFERENCES}
               </span>
@@ -489,11 +534,7 @@ export default function SettingsPage() {
                   </button>
                 </div>
               ))}
-              {selectedHousingOptions.length === 0 && (
-                <p className="text-sm text-red-500 italic">
-                  Please select at least one housing preference
-                </p>
-              )}
+
             </div>
             <div className="flex">
               <select
@@ -502,11 +543,10 @@ export default function SettingsPage() {
                 disabled={
                   selectedHousingOptions.length >= MAX_HOUSING_PREFERENCES
                 }
-                className={`flex-1 px-4 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-[#2774AE] ${
-                  selectedHousingOptions.length < 1 && housingError
-                    ? "border-red-300 bg-red-50"
-                    : "border-gray-300"
-                }`}
+                className={`flex-1 px-4 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-[#2774AE] ${selectedHousingOptions.length < 1 && housingError
+                  ? "border-red-300 bg-red-50"
+                  : "border-gray-300"
+                  }`}
               >
                 <option value="">Select housing option</option>
                 {housingOptions.map((option) => (
@@ -522,12 +562,11 @@ export default function SettingsPage() {
                   !selectedHousing ||
                   selectedHousingOptions.length >= MAX_HOUSING_PREFERENCES
                 }
-                className={`${
-                  !selectedHousing ||
+                className={`${!selectedHousing ||
                   selectedHousingOptions.length >= MAX_HOUSING_PREFERENCES
-                    ? "bg-gray-400"
-                    : "bg-[#2774AE] hover:bg-[#407ead]"
-                } text-white px-4 py-2 rounded-r-lg transition-colors`}
+                  ? "bg-gray-400"
+                  : "bg-[#2774AE] hover:bg-[#407ead]"
+                  } text-white px-4 py-2 rounded-r-lg transition-colors`}
               >
                 Add
               </button>
@@ -598,6 +637,77 @@ export default function SettingsPage() {
 
         <div className="flex flex-col justify-center items-center mt-4">
           {error && <small className="text-red-500">{error}</small>}
+        </div>
+        <div className="mt-12 border-t-2 border-red-200 pt-6">
+          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+            <div className="p-5 flex items-center justify-between">
+              <div>
+                <h4 className="font-medium text-gray-900">Delete Account</h4>
+                <p className="text-sm text-gray-600">
+                  Permanently remove your account and all associated data
+                </p>
+              </div>
+
+              {!showDeleteConfirm ? (
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-700 px-4 py-2 rounded-lg border border-red-300 transition-colors"
+                >
+                  <Trash2 size={18} />
+                  Delete
+                </button>
+              ) : (
+                <div className="bg-red-50 p-5 rounded-lg border border-red-300 shadow-sm w-full mt-4">
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="bg-red-100 p-2 rounded-full flex-shrink-0 mt-0.5">
+                      <Trash2 size={20} className="text-red-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-red-700 mb-2">Confirm Account Deletion</h4>
+                      <p className="text-red-700 text-sm">
+                        This will permanently delete your account and all associated data. This action cannot be undone.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 justify-end mt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowDeleteConfirm(false)}
+                      disabled={isDeleting}
+                      className="bg-white hover:bg-gray-50 text-gray-800 px-4 py-2 rounded-lg transition-colors border border-gray-300"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDeleteAccount}
+                      disabled={isDeleting}
+                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+                    >
+                      {isDeleting ? (
+                        <>
+                          <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                          <span>Deleting...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 size={16} />
+                          <span>Delete Account</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  {deleteError && (
+                    <div className="mt-3 p-2 bg-red-100 border border-red-200 rounded text-red-800 text-sm">
+                      {deleteError}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </form>
     </div>

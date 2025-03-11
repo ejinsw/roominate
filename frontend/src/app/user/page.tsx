@@ -1,23 +1,59 @@
 "use client";
 
+import { useState } from "react";
 import { useUser } from "@/context/UserContext";
 import Image from "next/image";
 import CircleProfile from "@/components/user/CircleProfile";
 import InterestBubble from "@/components/user/InterestBubble";
-import { Settings } from "lucide-react";
+import { Settings, ArrowLeft, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 
 export default function UserProfile() {
   const { user } = useUser();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   if (!user) {
     return <div>Loading...</div>;
   }
 
+  const handleDeleteAccount = async () => {
+    try {
+      setIsDeleting(true);
+      setDeleteError("");
+      
+      const res = await fetch("/api/auth/token");
+      const data = await res.json();
+      const token = data.token.value;
+      
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/delete`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to delete account");
+      }
+      
+      await fetch("/api/auth/logout", {
+        method: "POST"
+      });
+      
+      window.location.href = "/";
+      
+    } catch (error) {
+      console.error("Delete account error:", error);
+      setDeleteError("Failed to delete account. Please try again later.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-[#E6F3FF]">
-
       <div className="max-w-6xl mx-auto px-4 py-6">
         <Link 
           href="/home" 
@@ -26,8 +62,7 @@ export default function UserProfile() {
           <ArrowLeft size={18} />
           <span>Browse Roommates</span>
         </Link>
-        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-gray-200">
-
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-gray-200 relative">
           <Link
             href="/settings"
             className="absolute top-4 right-4 p-3 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors flex items-center gap-2"
@@ -121,6 +156,52 @@ export default function UserProfile() {
             </section>
           </div>
 
+          <div className="mt-8 border-t-2 border-red-200 pt-6">
+            
+            {!showDeleteConfirm ? (
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-700 px-4 py-2 rounded-lg border border-red-300 transition-colors"
+              >
+                <Trash2 size={18} />
+                Delete Account
+              </button>
+            ) : (
+              <div className="bg-red-50 p-4 rounded-lg border border-red-300">
+                <p className="text-red-700 mb-4 font-medium">Are you sure you want to delete your account? This action cannot be undone.</p>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={handleDeleteAccount}
+                    disabled={isDeleting}
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+                  >
+                    {isDeleting ? (
+                      <>
+                        <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                        <span>Deleting...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 size={16} />
+                        <span>Yes, Delete My Account</span>
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowDeleteConfirm(false)}
+                    disabled={isDeleting}
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+                {deleteError && <p className="text-red-500 mt-2 text-sm">{deleteError}</p>}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
