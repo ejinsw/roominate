@@ -29,7 +29,6 @@ export default function UserProfile({ params }: { params: { id: string } }) {
   });
 
   const [user, setUser] = useState<User | null>(null);
-  const [inviteSent, setInviteSent] = useState(true);
 
   useEffect(() => {
     async function getUser() {
@@ -42,12 +41,7 @@ export default function UserProfile({ params }: { params: { id: string } }) {
     getUser();
   }, []);
 
-  useEffect(() => {
-    setInviteSent(!user?.groupID && !!currentUser?.groupID);
-  }, [user, currentUser]);
-
   const handleInvite = () => {
-    setInviteSent(true);
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/invites/send`, {
       method: "POST",
       headers: {
@@ -80,11 +74,9 @@ export default function UserProfile({ params }: { params: { id: string } }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-[#E6F3FF]">
-
       <div className="max-w-6xl mx-auto px-4 py-6">
-
-        <Link 
-          href="/home" 
+        <Link
+          href="/home"
           className="inline-flex items-center gap-2 mb-4 px-4 py-2 bg-[#2774AE] text-white rounded-lg hover:bg-[#1D5A8A] transition-colors duration-200"
         >
           <ArrowLeft size={18} />
@@ -99,11 +91,10 @@ export default function UserProfile({ params }: { params: { id: string } }) {
               major={user.major ?? "Major not selected"}
               gender={user.gender ?? "Gender not specified"}
             />
-            {inviteSent && (
-              <Button variant="outline" onClick={handleInvite}>
-                Invite
-              </Button>
-            )}
+
+            <Button variant="outline" onClick={handleInvite}>
+              Invite
+            </Button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

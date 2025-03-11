@@ -14,53 +14,45 @@ import {
   DropdownMenuTrigger,
 } from "../shadcn/Dropdown";
 import { Button } from "../shadcn/Button";
-import { User } from "@/types/types";
+import { Invite, User } from "@/types/types";
 import { CircleUser, InboxIcon, LogOut, Search, Settings } from "lucide-react";
 import { useState } from "react";
 
 function Inbox({ user }: { user: User }) {
-  const handleReject = (inviteId: string) => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/invites/${inviteId}/reject`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log("Invite rejected:", data);
-        // Optionally, update the state or UI here
-      })
-      .catch((error) => {
-        console.error("There was a problem with the fetch operation:", error);
-      });
-  };
+  const [invites, setInvites] = useState<Invite[]>(user.invites || []);
 
-  const handleJoin = (inviteId: string) => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/invites/${inviteId}/accept`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
+  const handleAction = async (
+    inviteId: string,
+    action: "accept" | "reject"
+  ) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/invites/${inviteId}/${action}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-        return response.json();
-      })
-      .then((data) => {
-        console.log("Invite accepted:", data);
-        // Optionally, update the state or UI here
-      })
-      .catch((error) => {
-        console.error("There was a problem with the fetch operation:", error);
-      });
+      );
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      setInvites((prevInvites) =>
+        prevInvites.map((invite) =>
+          invite.id === inviteId
+            ? {
+                ...invite,
+                status: action === "accept" ? "accepted" : "rejected",
+              }
+            : invite
+        )
+      );
+    } catch (error) {
+      console.error(`Error while trying to ${action} invite:`, error);
+    }
   };
 
   return (
@@ -77,8 +69,8 @@ function Inbox({ user }: { user: User }) {
         <DropdownMenuLabel>Inbox</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          {user.invites.length > 0 ? (
-            user.invites.map((invite) => (
+          {invites.length > 0 ? (
+            invites.map((invite) => (
               <DropdownMenuItem key={invite.id}>
                 <div className="flex justify-between items-center w-full">
                   <div>{invite.group.name.substring(0, 12)}...</div>
@@ -89,7 +81,7 @@ function Inbox({ user }: { user: User }) {
                           className="text-blue-400 hover:text-blue-600"
                           onClick={(e) => {
                             e.preventDefault();
-                            handleJoin(invite.id);
+                            handleAction(invite.id, "accept");
                           }}
                         >
                           Join
@@ -98,13 +90,15 @@ function Inbox({ user }: { user: User }) {
                           className="text-red-400 hover:text-red-600"
                           onClick={(e) => {
                             e.preventDefault();
-                            handleReject(invite.id);
+                            handleAction(invite.id, "reject");
                           }}
                         >
                           Reject
                         </button>
                       </>
-                    ) : <div className="italic">{invite.status}</div>}
+                    ) : (
+                      <div className="italic">{invite.status}</div>
+                    )}
                   </div>
                 </div>
               </DropdownMenuItem>
