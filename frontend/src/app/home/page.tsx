@@ -6,15 +6,15 @@ interface HomeProps {
 }
 
 export default async function Home({ searchParams }: HomeProps) {
-  const preferences = await getPreferences().then((data) => 
+  const preferences = await getPreferences().then((data) =>
     data.map((pref) => pref.value)
   );
-  
-  const housing = await getHousing().then((data) => 
+
+  const housing = await getHousing().then((data) =>
     data.map((house) => house.name ?? "")
   );
 
-  const query = searchParams.query ?? "";
+  const { query } = await searchParams;
 
-  return <HomePage query={query} housing={housing} preferences={preferences} />;
+  return <HomePage query={query ?? ""} housing={housing} preferences={preferences} />;
 }

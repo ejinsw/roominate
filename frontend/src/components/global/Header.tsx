@@ -15,8 +15,110 @@ import {
 } from "../shadcn/Dropdown";
 import { Button } from "../shadcn/Button";
 import { User } from "@/types/types";
-import { CircleUser, LogOut, Search, Settings } from "lucide-react";
+import { CircleUser, InboxIcon, LogOut, Search, Settings } from "lucide-react";
 import { useState } from "react";
+
+function Inbox({ user }: { user: User }) {
+  const handleReject = (inviteId: string) => {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/invites/${inviteId}/reject`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Invite rejected:", data);
+        // Optionally, update the state or UI here
+      })
+      .catch((error) => {
+        console.error("There was a problem with the fetch operation:", error);
+      });
+  };
+
+  const handleJoin = (inviteId: string) => {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/invites/${inviteId}/accept`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Invite accepted:", data);
+        // Optionally, update the state or UI here
+      })
+      .catch((error) => {
+        console.error("There was a problem with the fetch operation:", error);
+      });
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          className="h-10 aspect-square rounded-full bg-white border font-bold text-gray-500"
+        >
+          <InboxIcon />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56 z-50">
+        <DropdownMenuLabel>Inbox</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          {user.invites.length > 0 ? (
+            user.invites.map((invite) => (
+              <DropdownMenuItem key={invite.id}>
+                <div className="flex justify-between items-center w-full">
+                  <div>{invite.group.name.substring(0, 12)}...</div>
+                  <div className="flex gap-2">
+                    {invite.status === "pending" ? (
+                      <>
+                        <button
+                          className="text-blue-400 hover:text-blue-600"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleJoin(invite.id);
+                          }}
+                        >
+                          Join
+                        </button>
+                        <button
+                          className="text-red-400 hover:text-red-600"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleReject(invite.id);
+                          }}
+                        >
+                          Reject
+                        </button>
+                      </>
+                    ) : <div className="italic">{invite.status}</div>}
+                  </div>
+                </div>
+              </DropdownMenuItem>
+            ))
+          ) : (
+            <DropdownMenuItem className="text-gray-500">
+              No invites
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 function ProfileDropdown({ user, logout }: { user: User; logout: () => void }) {
   return (
@@ -113,6 +215,7 @@ export function Header({ className }: { className?: string }) {
           <>
             <SearchBar />
             <ProfileDropdown user={user} logout={logout} />
+            <Inbox user={user} />
           </>
         )}
       </nav>

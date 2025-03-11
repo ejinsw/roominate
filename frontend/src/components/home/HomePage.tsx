@@ -53,7 +53,7 @@ export function HomePage({
 
   const handleGroupFilterSubmit = () => {
     setLoading(true);
-    getGroup(searchInput, filters)
+    getGroup(searchInput, user?.id ?? "", filters)
       .then((data: Group[]) => {
         // Filter out the current user
         setGroups(data);

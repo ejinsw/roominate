@@ -1,253 +1,189 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-
-import { Group, User } from "@/types/types";
-import { Skeleton } from "@/components/global/Skeleton";
-import { ProfileTab } from "@/components/group/ProfileTab";
+import { Group } from "@/types/types";
 import SafeArea from "@/components/global/SafeArea";
-import UserCard from "@/components/home/UserCard";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext";
-
-// Add this mock data near the top of the file, after the imports
-const sampleGroup: Group = {
-  id: "1",
-  name: "UCLA Housing Squad",
-  description:
-    "We're a group of students looking for apartment-style housing near campus. We enjoy a balance of studying and socializing, and we're all clean and respectful roommates.",
-  users: [
-    {
-      id: "user1",
-      name: "John Doe",
-      email: "john@ucla.edu",
-      profileImage: "https://i.pravatar.cc/150?img=1",
-      bio: "Computer Science major, junior year",
-      preferences: {
-        preferences: [
-          {
-            id: "1",
-            preference: { id: "1", value: "Sleeping Schedule" },
-            option: "Night Owl",
-            importance: " (Very Important)",
-          },
-          {
-            id: "2",
-            preference: { id: "2", value: "Cleanliness" },
-            option: "Very Clean",
-            importance: " (Important)",
-          },
-        ],
-      },
-    },
-    {
-      id: "user2",
-      name: "Jane Smith",
-      email: "jane@ucla.edu",
-      profileImage: "https://i.pravatar.cc/150?img=2",
-      bio: "Biology major, sophomore year",
-      preferences: {
-        preferences: [
-          {
-            id: "3",
-            preference: { id: "3", value: "Study Habits" },
-            option: "Library Regular",
-            importance: " (Important)",
-          },
-        ],
-      },
-    },
-  ],
-  preferences: {
-    preferences: [
-      {
-        id: "grp1",
-        preference: { id: "p1", value: "Apartment Type" },
-        option: "2B2B",
-        importance: " (Required)",
-      },
-      {
-        id: "grp2",
-        preference: { id: "p2", value: "Location" },
-        option: "Westwood",
-        importance: " (Very Important)",
-      },
-      {
-        id: "grp3",
-        preference: { id: "p3", value: "Budget per Person" },
-        option: "$1200-1500",
-        importance: " (Required)",
-      },
-      {
-        id: "grp4",
-        preference: { id: "p4", value: "Lease Duration" },
-        option: "12 months",
-        importance: " (Flexible)",
-      },
-    ],
-  },
-};
-
-async function getUser(
-  name: string,
-  userId: string,
-  filters: {
-    gender: string[];
-    preferences: string[];
-    housing: string[];
-    year: string[];
-  } = { gender: [], preferences: [], housing: [], year: [] }
-): Promise<User[]> {
-  try {
-    const queryParams = new URLSearchParams({
-      name,
-      filters: JSON.stringify(filters),
-    }).toString();
-
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/users?userId=${userId}&${queryParams}`
-    );
-    const data = await res.json();
-    return data;
-  } catch (error) {
-    console.error("Error fetching users:", error);
-    return [];
-  }
-}
-
-async function getGroup(id: string): Promise<Group | null> {
-  // For testing, return the sample data instead of making an API call
-  return sampleGroup;
-  /*
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/groups/${id}`);
-    const data = await res.json();
-    return data.group;
-  } catch (error) {
-    console.error("Error fetching group:", error);
-    return null;
-  }
-  */
-}
 
 export default function GroupProfile({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const router = useRouter();
+  const { user } = useUser();
   const { id } = use(params);
   const [group, setGroup] = useState<Group | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchGroup = async () => {
-      const groupData = await getGroup(id);
-      setGroup(groupData);
-      setLoading(false);
-    };
+    async function fetchGroup() {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/groups/search/${id}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch group: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log("Fetched data:", data);
+        setGroup(data.group);
+      } catch (error) {
+        console.error("Error fetching group:", error);
+        setGroup(null);
+      } finally {
+        setLoading(false);
+      }
+    }
 
     fetchGroup();
   }, [id]);
 
-  //checks
-  console.log(loading);
-  console.log(group);
+  const handleEditClick = () => {
+    const isGroupMember =
+      user && group?.users?.some((groupUser) => groupUser.id === user.id);
+    if (isGroupMember) {
+      console.log("in group");
+    } else {
+      console.log("not in group");
+    }
+  };
+
   if (loading) {
     return (
-      <>
-        <SafeArea className="py-8 flex flex-col gap-8 min-h-screen bg-gradient-to-b from-white to-[#E6F3FF]">
-          <div className="flex flex-col gap-4 bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-gray-200">
-            <Skeleton className="rounded-full w-1/3 h-12" />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <section className="space-y-4 bg-white/80 rounded-xl p-6 shadow-md">
-                <h2 className="text-2xl font-bold text-[#2774AE]">
-                  Description
-                </h2>
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-1/3" />
-              </section>
-
-              <section className="space-y-4 bg-white/80 rounded-xl p-6 shadow-md">
-                <h2 className="text-2xl font-bold text-[#2774AE]">
-                  Group Preferences
-                </h2>
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-1/3" />
-              </section>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-4 bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-gray-200">
-            <h2 className="text-2xl font-bold text-[#2774AE]">Members</h2>
-            <div className="flex flex-col gap-4">
-              <Skeleton className="h-12 w-full" />
-            </div>
-          </div>
-        </SafeArea>
-      </>
+      <SafeArea>
+        <div className="flex justify-center items-center min-h-[200px]">
+          <div className="text-lg text-gray-600">Loading group...</div>
+        </div>
+      </SafeArea>
     );
   }
 
   if (!group) {
     return (
-      <>
-        <SafeArea className="py-8 flex flex-col gap-8 min-h-screen bg-gradient-to-b from-white to-[#E6F3FF]">
-          <div className="text-center">
-            <h1 className="text-2xl text-gray-700">Group not found</h1>
-          </div>
-        </SafeArea>
-      </>
+      <SafeArea>
+        <div className="flex justify-center items-center min-h-[200px]">
+          <div className="text-lg text-red-600">Group not found</div>
+        </div>
+      </SafeArea>
     );
   }
 
   return (
-    <>
-      <SafeArea className="py-8 flex flex-col gap-8 min-h-screen bg-gradient-to-b from-white to-[#E6F3FF]">
-        <div className="flex flex-col gap-4 bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-gray-200">
-          <h1 className="text-3xl font-bold text-blue-500">{group.name}</h1>
+    <SafeArea>
+      <div className="max-w-4xl mx-auto p-6">
+        {/* Group Header */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <h1 className="text-3xl font-bold text-[#2774AE] mb-2">
+            {group.name || "Unnamed Group"}
+          </h1>
+          <p className="text-gray-600 mb-4">
+            {group.description || "No description available"}
+          </p>
+          <div className="flex items-center gap-4 text-sm text-gray-500">
+            <span>Members: {group.users?.length || 0}</span>
+            <span>•</span>
+            <span>Status: {group.openToJoin ? "Open to Join" : "Closed"}</span>
+          </div>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <section className="space-y-4 bg-white/80 rounded-xl p-6 shadow-md">
-              <h2 className="text-2xl font-bold text-[#2774AE]">Description</h2>
-              <p className="text-gray-800">{group?.description}</p>
-            </section>
-
-            <section className="space-y-4 bg-white/80 rounded-xl p-6 shadow-md">
-              <h2 className="text-2xl font-bold text-[#2774AE]">
-                Group Preferences
-              </h2>
-              <div className="space-y-3">
-                {group.preferences?.preferences.map((preference) => (
-                  <div
-                    key={preference.id}
-                    className="flex justify-between items-center"
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Members Section */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-[#2774AE] mb-4">
+              Group Members
+            </h2>
+            <div className="space-y-4">
+              {group.users && group.users.length > 0 ? (
+                group.users.map((user, index) => (
+                  <Link
+                    href={`/user/${user.id}`}
+                    key={user.id || index}
+                    className="flex items-center gap-4 p-3 hover:bg-gray-50 rounded-lg transition-colors"
                   >
-                    <span className="text-gray-700 font-medium">
-                      {preference.preference.value}
-                    </span>
-                    <span className="font-semibold text-gray-900">
-                      {preference.option}
-                      {preference.importance}
-                    </span>
+                    <div className="w-10 h-10 bg-[#2774AE] rounded-full flex items-center justify-center text-white font-semibold">
+                      {user.name?.[0]?.toUpperCase() || "?"}
+                    </div>
+                    <div>
+                      <div className="font-medium text-gray-900">
+                        {user.name}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {user.major || "Major not specified"} •{" "}
+                        {user.year ? `Year ${user.year}` : "Year not specified"}
+                      </div>
+                    </div>
+                  </Link>
+                ))
+              ) : (
+                <p className="text-gray-500 italic">No members in this group</p>
+              )}
+            </div>
+          </div>
+
+          {/* Preferences Section */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-[#2774AE] mb-4">
+              Group Preferences
+            </h2>
+            <div className="space-y-3">
+              {group.preferences?.preferences &&
+              group.preferences.preferences.length > 0 ? (
+                group.preferences.preferences.map((pref, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-2 border-b border-gray-100 last:border-0"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`
+                        px-2 py-1 rounded-full text-xs font-medium
+                        ${
+                          pref.importance === "High"
+                            ? "bg-red-100 text-red-700"
+                            : pref.importance === "Medium"
+                            ? "bg-yellow-100 text-yellow-700"
+                            : "bg-gray-100 text-gray-700"
+                        }
+                      `}
+                      >
+                        {pref.importance}
+                      </span>
+                      <span className="text-gray-900">
+                        {pref.preference?.value}
+                      </span>
+                    </div>
+                    <span className="text-gray-600">{pref.option}</span>
                   </div>
-                ))}
-              </div>
-            </section>
+                ))
+              ) : (
+                <p className="text-gray-500 italic">No preferences set</p>
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-gray-200">
-          <h2 className="text-2xl font-bold text-[#2774AE]">Members</h2>
-          <div className="flex flex-col gap-4">
-            {group.users.map((user) => (
-              <ProfileTab key={user.id} user={user} />
-            ))}
-          </div>
+        {/* Add new buttons section at the bottom */}
+        <div className="mt-6 flex justify-center gap-4">
+          <button
+            onClick={handleEditClick}
+            className="px-6 py-2 bg-[#2774AE] text-white rounded-lg hover:bg-[#1d5585] transition-colors"
+          >
+            Edit Group
+          </button>
+          <button
+            onClick={() => router.push("/home")}
+            className="px-6 py-2 border border-[#2774AE] text-[#2774AE] rounded-lg hover:bg-[#2774AE] hover:text-white transition-colors"
+          >
+            Browse Groups
+          </button>
         </div>
-      </SafeArea>
-    </>
+      </div>
+    </SafeArea>
   );
 }
