@@ -236,8 +236,16 @@ export const updateMe = expressAsyncHandler(
 
       const user: any = req.user;
 
-      const { year, gender, name, major, bio, interests, preferences, housing } =
-        req.body;
+      const {
+        year,
+        gender,
+        name,
+        major,
+        bio,
+        interests,
+        preferences,
+        housing,
+      } = req.body;
 
       const updateData = {} as Prisma.UserUpdateInput;
 
@@ -343,9 +351,26 @@ export const deleteMe = expressAsyncHandler(
         return;
       }
 
-      await prisma.user.delete({
-        where: { id: (req.user as any).id },
-      });
+      await prisma.$transaction([
+        // Delete all related UserPreferencesRelation entries first
+        prisma.userPreferencesRelation.deleteMany({
+          where: {
+            userPreferences: {
+              userID: (req.user as any).id,
+            },
+          },
+        }),
+
+        // Delete the UserPreferences entry
+        prisma.userPreferences.deleteMany({
+          where: { userID: (req.user as any).id },
+        }),
+
+        // Delete the User entry
+        prisma.user.delete({
+          where: { id: (req.user as any).id },
+        }),
+      ]);
 
       res.json({ message: "User deleted successfully" });
     } catch (error) {
