@@ -82,6 +82,28 @@ export const getGroups = expressAsyncHandler(
         };
       }
 
+      //filter group by living preferences
+      // Filter group by living preferences
+      // Filter group by living preferences
+      if (parsedFilters.preferences?.length) {
+        if (!filter.preferences) {
+          filter.preferences = {};
+        }
+      
+        filter.preferences.preferences = {
+          some: {
+            preference: {
+              OR: parsedFilters.preferences.map((pref) => ({
+                value: {
+                  equals: pref,
+                  mode: "insensitive",
+                },
+              })),
+            },
+          },
+        };
+      }
+      
       //fetch all the groups with living preferences
       const groups = await prisma.group.findMany({
         where: filter,
@@ -100,46 +122,11 @@ export const getGroups = expressAsyncHandler(
         },
       });
 
-      const userPreferences = parsedFilters.preferences || [];
-      const preferenceMatchesMap: Record<number, string[]> = {};
-
-      for (const grp of groups) {
-        // Extract the group's living-preference names
-        // e.g. grp.preferences?.preferences is an array of { preference?: { name: string } }
-        const groupLivingPrefNames = (grp.preferences?.preferences || [])
-          .map((p) => p.preference.value) // or another valid property
-          .filter(Boolean) as string[];
-
-        // Count how many overlap the user's preferences
-        const matches = groupLivingPrefNames.filter((prefName) =>
-          userPreferences.includes(prefName)
-        ).length;
-
-        // Store in the map: key = # of matches, value = array of group IDs
-        if (!preferenceMatchesMap[matches]) {
-          preferenceMatchesMap[matches] = [];
-        }
-        preferenceMatchesMap[matches].push(grp.id);
-      }
-
-      // 8. Sort match counts from greatest to smallest
-      const sortedMatchCounts = Object.keys(preferenceMatchesMap)
-        .map(Number)
-        .sort((a, b) => b - a);
-
-      // 9. Flatten group IDs in descending order of match count
-      const sortedGroupIds: string[] = [];
-      for (const matchCount of sortedMatchCounts) {
-        sortedGroupIds.push(...preferenceMatchesMap[matchCount]);
-      }
-
       // 10. Return everything in a single response
       res.json({
         singleRequestedGroup: group, // null if groupId not provided
         totalGroupsFound: groups.length,
         groups, // the raw groups from DB
-        preferenceMatchesMap, // e.g. {3: ["groupA"], 2: ["groupB","groupC"]}
-        sortedGroupIds, // e.g. ["groupA", "groupB", "groupC"]
       });
     } catch (error) {
       console.log(error);
