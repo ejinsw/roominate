@@ -52,7 +52,6 @@ const Filter = ({
     <div
       className={`flex flex-col w-64 min-h-full ${className}`}
     >
-      {/* Search by Name Filter Section */}
       <div className="mb-6">
         <h3 className="text-gray-700 font-medium mb-2 underline">
           Search by Name
@@ -66,7 +65,6 @@ const Filter = ({
         />
       </div>
 
-      {/* Other Filters */}
       {filters.map((filter) => (
         <div className="" key={filter.label}>
           <hr className="border-t border-gray-200 my-4" />
@@ -105,7 +103,6 @@ const Filter = ({
         </div>
       ))}
 
-      {/* Apply Button */}
       <button
         className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-200 mt-6"
         onClick={handleSubmit}

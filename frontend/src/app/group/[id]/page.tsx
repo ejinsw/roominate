@@ -77,7 +77,6 @@ export default function GroupProfile({
   return (
     <SafeArea>
       <div className="max-w-4xl mx-auto p-6">
-        {/* Group Header */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h1 className="text-3xl font-bold text-[#2774AE] mb-2">
             {group.name || "Unnamed Group"}
@@ -93,7 +92,6 @@ export default function GroupProfile({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Members Section */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold text-[#2774AE] mb-4">
               Group Members
@@ -126,7 +124,6 @@ export default function GroupProfile({
             </div>
           </div>
 
-          {/* Preferences Section */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold text-[#2774AE] mb-4">
               Group Preferences
@@ -168,7 +165,6 @@ export default function GroupProfile({
           </div>
         </div>
 
-        {/* Add new buttons section at the bottom */}
         <div className="mt-6 flex justify-center gap-4">
           <button
             onClick={handleEditClick}

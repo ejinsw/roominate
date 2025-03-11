@@ -76,7 +76,7 @@ export const getGroupsByHousingById = expressAsyncHandler(
 export const createGroupHousingPreference = expressAsyncHandler(
   async (
     req: Request<
-      { id: string }, // groupId
+      { id: string }, 
       {},
       {
         housingId?: string;
@@ -125,7 +125,7 @@ export const createGroupHousingPreference = expressAsyncHandler(
           where: {
             housingID_preferencesID: {
               housingID: housingId,
-              preferencesID: groupPreferences.id, // id for the related groupPreferences
+              preferencesID: groupPreferences.id, 
             },
           },
         });
@@ -157,4 +157,3 @@ export const createGroupHousingPreference = expressAsyncHandler(
   }
 );
 
-// route for updating housing preference

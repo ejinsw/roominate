@@ -18,12 +18,10 @@ export default function CreateGroupPage() {
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
-    // Group data
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [size, setSize] = useState(2);
 
-    // Tags related state
     const [tags, setTags] = useState<string[]>([]);
     const [newTag, setNewTag] = useState("");
     const [tagError, setTagError] = useState("");

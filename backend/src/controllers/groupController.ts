@@ -6,7 +6,6 @@ import prisma from "../prismaClient";
 export const getGroups = expressAsyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      /* Parse Query Filters */
       const { filters: queryFilters, groupId, name, userId } = req.query;
 
       let group: Group | null = null;
@@ -83,8 +82,6 @@ export const getGroups = expressAsyncHandler(
       }
 
       //filter group by living preferences
-      // Filter group by living preferences
-      // Filter group by living preferences
       if (parsedFilters.preferences?.length) {
         if (!filter.preferences) {
           filter.preferences = {};
@@ -104,7 +101,6 @@ export const getGroups = expressAsyncHandler(
         };
       }
       
-      //fetch all the groups with living preferences
       const groups = await prisma.group.findMany({
         where: filter,
         include: {
@@ -122,11 +118,10 @@ export const getGroups = expressAsyncHandler(
         },
       });
 
-      // 10. Return everything in a single response
       res.json({
-        singleRequestedGroup: group, // null if groupId not provided
+        singleRequestedGroup: group, 
         totalGroupsFound: groups.length,
-        groups, // the raw groups from DB
+        groups, 
       });
     } catch (error) {
       console.log(error);
@@ -171,12 +166,11 @@ export const createGroups = expressAsyncHandler(
             numRoomates,
             openToJoin,
             users: {
-              // Connect existing users by their unique identifier (e.g., id)
               connect: [{ id: userID }],
             },
           },
         });
-        res.json(newGroup); // return json of newly created group
+        res.json(newGroup); 
       }
     } catch (error) {
       console.log(error);
@@ -237,15 +231,14 @@ export const updateGroups = expressAsyncHandler(
         return;
       }
 
-      const { id, name, description, numRoomates, openToJoin } = req.body; // pass in group id as id
+      const { id, name, description, numRoomates, openToJoin } = req.body; 
 
       if ((req.user as any).groupID !== id) {
-        // check if user is in the group
         res.status(401).json({ message: "Unauthorized, user is not in group" });
         return;
       }
 
-      // const user: any = req.user;
+
 
       const group = await prisma.group.findUnique({
         where: { name },

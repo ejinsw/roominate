@@ -107,7 +107,6 @@ export const rejectInvite = expressAsyncHandler(
   }
 );
 
-//add a route for get invites from the group side
 export const getInvites = expressAsyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const { id } = req.params; // id is the group id
@@ -125,7 +124,6 @@ export const getInvites = expressAsyncHandler(
       throw new Error("Group not found");
     }
 
-    // Get all invites for the group
     const invites = await prisma.invite.findMany({
       where: { groupID: id },
     });

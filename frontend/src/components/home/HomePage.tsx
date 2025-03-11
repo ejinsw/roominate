@@ -43,7 +43,6 @@ export function HomePage({
     setLoading(true);
     getUser(searchInput, user?.id ?? "", filters)
       .then((data) => {
-        // Filter out the current user
         const filteredUsers = data.filter((u) => u.id !== user?.id);
         setUsers(filteredUsers);
         setLoading(false);
@@ -55,7 +54,6 @@ export function HomePage({
     setLoading(true);
     getGroup(searchInput, user?.id ?? "", filters)
       .then((data: Group[]) => {
-        // Filter out the current user
         setGroups(data);
         setLoading(false);
       })
@@ -67,7 +65,6 @@ export function HomePage({
 
     setLoading(true);
     getUser(searchInput, user.id ?? "", filters).then((data) => {
-      // Filter out the current user
       const filteredUsers = data.filter((u) => u.id !== user.id);
       setUsers(filteredUsers);
       setLoading(false);
@@ -75,15 +72,12 @@ export function HomePage({
 
     getGroup(searchInput, filters)
       .then((data: Group[]) => {
-        // Filter out the current user
         setGroups(data);
         setLoading(false);
       })
       .finally(() => setLoading(false));
-    //functionality for filter reset when navigating searchTypes
     setFilters({ gender: [], preferences: [], housing: [], year: [] });
     setSearchInput("");
-    // Optionally, clear existing results:
     if (searchType === "user") {
       setUsers([]);
     } else {
@@ -125,7 +119,6 @@ export function HomePage({
         },
       });
 
-      // Get Year
       currFilters.push({
         label: "Year",
         options: ["1", "2", "3", "4", "5"],
