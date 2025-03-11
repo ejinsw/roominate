@@ -7,6 +7,8 @@ import { getGroup, getUser } from "@/lib/utils";
 import { Group, User } from "@/types/types";
 import { useEffect, useState } from "react";
 import GroupCard from "./GroupCard";
+import { Plus } from "lucide-react";
+import Link from "next/link";
 
 export function HomePage({
   query,
@@ -136,21 +138,19 @@ export function HomePage({
         <div className="flex flex-col items-center bg-gray-50 p-5 border-r border-gray-200">
           <div className="flex gap-4 justify-center items-center w-full mb-4">
             <button
-              className={`px-4 py-2 rounded-lg ${
-                searchType === "user"
+              className={`px-4 py-2 rounded-lg ${searchType === "user"
                   ? "bg-blue-500 text-white"
                   : "bg-gray-200 text-gray-800"
-              }`}
+                }`}
               onClick={() => setSearchType("user")}
             >
               User
             </button>
             <button
-              className={`px-4 py-2 rounded-lg ${
-                searchType === "group"
+              className={`px-4 py-2 rounded-lg ${searchType === "group"
                   ? "bg-blue-500 text-white"
                   : "bg-gray-200 text-gray-800"
-              }`}
+                }`}
               onClick={() => setSearchType("group")}
             >
               Group
@@ -199,9 +199,18 @@ export function HomePage({
           )}
           {searchType === "group" && (
             <>
-              <h1 className="text-2xl font-bold text-[#2774AE] mb-6">
-                Find Groups
-              </h1>
+              <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold text-[#2774AE]">
+                  Find Groups
+                </h1>
+                <Link href="/group">
+                  <button className="flex items-center gap-2 bg-[#2774AE] hover:bg-[#1D5A8A] text-white px-4 py-2 rounded-lg transition-colors">
+                    <Plus size={18} />
+                    <span>Create Group</span>
+                  </button>
+                </Link>
+              </div>
+
               {groups.length === 0 || loading ? (
                 <div className="bg-white/80 rounded-lg p-8 text-center shadow-sm border border-gray-200">
                   <p className="text-gray-600">

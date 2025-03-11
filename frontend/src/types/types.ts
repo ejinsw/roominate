@@ -13,7 +13,8 @@ export interface User {
   major: string;
   bio: string;
   interests: string[];
-  onBoardingComplete: boolean;
+  onBoardingComplete: Boolean;
+  gender: string;
 
 }
 
