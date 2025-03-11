@@ -158,7 +158,7 @@ model GroupPreferences {
   updatedAt DateTime @updatedAt
 
   groupID String? @unique @db.ObjectId
-  group   Group?  @relation(fields: [groupID], references: [id])
+  group   Group?  @relation(fields: [groupID], references: [id], onDelete: Cascade)
 
   preferredHousing GroupHousingPreferencesRelation[]
   preferences      GroupPreferencesRelation[]
@@ -171,7 +171,7 @@ model GroupPreferencesRelation {
   groupPreferences   GroupPreferences @relation(fields: [groupPreferencesID], references: [id])
 
   preferenceID String     @db.ObjectId
-  preference   Preference @relation(fields: [preferenceID], references: [id])
+  preference   Preference @relation(fields: [preferenceID], references: [id], onDelete: Cascade)
 
   option     String?
   importance String?
@@ -186,7 +186,7 @@ model GroupHousingPreferencesRelation {
   housing   Housing @relation(fields: [housingID], references: [id])
 
   preferencesID String           @db.ObjectId
-  preferences   GroupPreferences @relation(fields: [preferencesID], references: [id])
+  preferences   GroupPreferences @relation(fields: [preferencesID], references: [id], onDelete: Cascade)
 
   @@unique([housingID, preferencesID])
 }
