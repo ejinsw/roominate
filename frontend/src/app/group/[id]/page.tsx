@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import NavBar from "@/components/global/NavBar";
+
 import { Group, User } from "@/types/types";
 import { Skeleton } from "@/components/global/Skeleton";
 import { ProfileTab } from "@/components/group/ProfileTab";
@@ -154,7 +154,6 @@ export default function GroupProfile({
   if (loading) {
     return (
       <>
-        <NavBar />
         <SafeArea className="py-8 flex flex-col gap-8 min-h-screen bg-gradient-to-b from-white to-[#E6F3FF]">
           <div className="flex flex-col gap-4 bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-gray-200">
             <Skeleton className="rounded-full w-1/3 h-12" />
@@ -195,7 +194,6 @@ export default function GroupProfile({
   if (!group) {
     return (
       <>
-        <NavBar />
         <SafeArea className="py-8 flex flex-col gap-8 min-h-screen bg-gradient-to-b from-white to-[#E6F3FF]">
           <div className="text-center">
             <h1 className="text-2xl text-gray-700">Group not found</h1>
@@ -207,7 +205,6 @@ export default function GroupProfile({
 
   return (
     <>
-      <NavBar />
       <SafeArea className="py-8 flex flex-col gap-8 min-h-screen bg-gradient-to-b from-white to-[#E6F3FF]">
         <div className="flex flex-col gap-4 bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-gray-200">
           <h1 className="text-3xl font-bold text-blue-500">{group.name}</h1>
