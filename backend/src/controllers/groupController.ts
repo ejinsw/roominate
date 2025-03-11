@@ -7,7 +7,7 @@ export const getGroups = expressAsyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       /* Parse Query Filters */
-      const { filters: queryFilters, groupId, name } = req.query;
+      const { filters: queryFilters, groupId, name, userId } = req.query;
 
       let group: Group | null = null;
 
