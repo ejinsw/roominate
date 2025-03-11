@@ -78,7 +78,16 @@ export function HomePage({
         setLoading(false);
       })
       .finally(() => setLoading(false));
-  }, []);
+    //functionality for filter reset when navigating searchTypes
+    setFilters({ gender: [], preferences: [], housing: [], year: [] });
+    setSearchInput("");
+    // Optionally, clear existing results:
+    if (searchType === "user") {
+      setUsers([]);
+    } else {
+      setGroups([]);
+    }
+  }, [searchType]);
 
   useEffect(() => {
     const currFilters = [];

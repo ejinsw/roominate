@@ -99,41 +99,93 @@ export const getUsers = expressAsyncHandler(
 
       //COPY FROM HERE
       // Preference filters
-      if (
-        parsedFilters.preferences?.length &&
-        parsedFilters.preferences &&
-        user
-      ) {
-        filter.preferences = {
-          preferences: {
-            every: {
-              AND: parsedFilters.preferences.map((preference) => {
-                // this finds the matching user pref
-                const userPreference = (req.user as any)?.preferences
-                  ?.preferences
-                  ? (req.user as any)?.preferences.preferences.find(
-                      (val: any) => val.preference.value === preference
-                    )
-                  : null;
+      // if (
+      //   parsedFilters.preferences?.length &&
+      //   parsedFilters.preferences &&
+      //   user
+      // ) {
+      //   filter.preferences = {
+      //     preferences: {
+      //       every: {
+      //         AND: parsedFilters.preferences.map((preference) => {
+      //           // this finds the matching user pref
+      //           const userPreference = (req.user as any)?.preferences
+      //             ?.preferences
+      //             ? (req.user as any)?.preferences.preferences.find(
+      //                 (val: any) => val.preference.value === preference
+      //               )
+      //             : null;
 
-                if (!userPreference) return {}; // otherwise skips
+      //           if (!userPreference) return {}; // otherwise skips
 
-                // filters out the users that don't have the same selected option for the preference
-                return {
-                  preference: {
-                    value: {
-                      equals: preference,
-                      mode: "insensitive",
-                    },
+      //           // filters out the users that don't have the same selected option for the preference
+      //           return {
+      //             preference: {
+      //               value: {
+      //                 equals: preference,
+      //                 mode: "insensitive",
+      //               },
+      //             },
+      //             option: {
+      //               equals: userPreference.option,
+      //             },
+      //           };
+      //         }),
+      //       },
+      //     },
+      //   };
+      // }
+      // Preference filters: Show users with the same preference value for a certain preference
+      if (parsedFilters.preferences?.length && req.user) {
+        // We only use the first preference from parsedFilters.preferences
+        const selectedPrefValue = parsedFilters.preferences[0];
+
+        // 1) Fetch the current user to see what option they've chosen for this preference
+        const currentUser = await prisma.user.findUnique({
+          where: { id: (req.user as any).id },
+          include: {
+            preferences: {
+              include: {
+                preferences: {
+                  include: {
+                    preference: true, // load the actual Preference record (.value)
                   },
-                  option: {
-                    equals: userPreference.option,
-                  },
-                };
-              }),
+                },
+              },
             },
           },
-        };
+        });
+
+        // 2) If the current user actually has preferences
+        if (currentUser?.preferences?.preferences?.length) {
+          // Find the user's 'option' for the chosen preference
+          const matchingRelation = currentUser.preferences.preferences.find(
+            (rel) => rel.preference.value === selectedPrefValue
+          );
+
+          // If the user DOES have that preference, filter for others who share it
+          if (matchingRelation) {
+            const userOption = matchingRelation.option;
+
+            // Ensure filter.preferences is an object
+            if (!filter.preferences) {
+              filter.preferences = {};
+            }
+
+            // 3) Filter for all users who have the same preference value + option
+            filter.preferences.preferences = {
+              some: {
+                preference: {
+                  value: {
+                    equals: selectedPrefValue,
+                    mode: "insensitive",
+                  },
+                },
+                option: { equals: userOption },
+              },
+            };
+          }
+        }
       }
 
       // Housing filter
@@ -236,8 +288,16 @@ export const updateMe = expressAsyncHandler(
 
       const user: any = req.user;
 
-      const { year, gender, name, major, bio, interests, preferences, housing } =
-        req.body;
+      const {
+        year,
+        gender,
+        name,
+        major,
+        bio,
+        interests,
+        preferences,
+        housing,
+      } = req.body;
 
       const updateData = {} as Prisma.UserUpdateInput;
 
@@ -331,7 +391,10 @@ export const updateMe = expressAsyncHandler(
       });
 
       res.json(updatedUser);
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Server error", error });
+    }
   }
 );
 
