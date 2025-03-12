@@ -6,6 +6,7 @@ import SafeArea from "@/components/global/SafeArea";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext";
+import { Button } from "@/components/shadcn/Button";
 
 export default function GroupProfile({
   params,
@@ -17,6 +18,32 @@ export default function GroupProfile({
   const { id } = use(params);
   const [group, setGroup] = useState<Group | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const handleRequest = () => {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/requests/send`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userID: user?.id,
+        groupID: id,
+        message: "Hey, I'd love to join your group!",
+      }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Request sent:", data);
+      })
+      .catch((error) => {
+        console.error("There was a problem with the fetch operation:", error);
+      });
+  };
 
   useEffect(() => {
     async function fetchGroup() {
@@ -78,9 +105,14 @@ export default function GroupProfile({
     <SafeArea>
       <div className="max-w-4xl mx-auto p-6">
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h1 className="text-3xl font-bold text-[#2774AE] mb-2">
-            {group.name || "Unnamed Group"}
-          </h1>
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-3xl font-bold text-[#2774AE] mb-2">
+              {group.name || "Unnamed Group"}
+            </h1>
+            <Button variant="outline" onClick={handleRequest}>
+              Request
+            </Button>
+          </div>
           <p className="text-gray-600 mb-4">
             {group.description || "No description available"}
           </p>
