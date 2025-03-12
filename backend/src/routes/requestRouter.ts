@@ -4,4 +4,5 @@ import { getRequests } from "../controllers/requestController";
 const router = Router();
 
 router.get("/requests/:id", getRequests);
+
 export default router;

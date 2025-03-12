@@ -1,6 +1,6 @@
 import expressAsyncHandler from "express-async-handler";
 import { NextFunction, Request, Response } from "express";
-import { Prisma } from "@prisma/client";
+import { Prisma, User, UserPreferencesRelation } from "@prisma/client";
 import prisma from "../prismaClient";
 
 export const getUsers = expressAsyncHandler(
@@ -53,7 +53,7 @@ export const getUsers = expressAsyncHandler(
       }
 
       /* Add Filters */
-      const filter = {} as Prisma.UserWhereInput;
+      let filter = {} as Prisma.UserWhereInput;
 
       // Name filter
       if (req.query.name) {
@@ -98,42 +98,63 @@ export const getUsers = expressAsyncHandler(
       }
 
       //COPY FROM HERE
-      // Preference filters
-      if (
-        parsedFilters.preferences?.length &&
-        parsedFilters.preferences &&
-        user
-      ) {
-        filter.preferences = {
-          preferences: {
-            every: {
-              AND: parsedFilters.preferences.map((preference) => {
-                // this finds the matching user pref
-                const userPreference = (req.user as any)?.preferences
-                  ?.preferences
-                  ? (req.user as any)?.preferences.preferences.find(
-                      (val: any) => val.preference.value === preference
-                    )
-                  : null;
+      //Living preferences filter
+      type ExtendedUserPreferencesRelation = UserPreferencesRelation & {
+        preference: {
+          id: string;
+          value: string;
+          category: string;
+          options: string[];
+          importance: string[];
+        };
+      };
 
-                if (!userPreference) return {}; // otherwise skips
+      if (parsedFilters.preferences?.length && user) {
+        // Get the loggin in user's preferences
+        const extendedUser = user as User & {
+          preferences?: { preferences: ExtendedUserPreferencesRelation[] };
+        };
 
-                // filters out the users that don't have the same selected option for the preference
-                return {
-                  preference: {
-                    value: {
-                      equals: preference,
-                      mode: "insensitive",
+        // Build an array for each living preference
+        const livingPreferenceConditions = parsedFilters.preferences
+          .map((filterPref: string) => {
+            // Look up the the user's preference for the filter chosen
+            const userPref = extendedUser.preferences?.preferences.find(
+              (up) =>
+                up.preference.value.toLowerCase() === filterPref.toLowerCase()
+            );
+            if (!userPref) return null;
+
+            // Get the mtching UserPreferencesRelation for the other users
+            return {
+              preferences: {
+                is: {
+                  preferences: {
+                    some: {
+                      preference: {
+                        is: {
+                          value: {
+                            equals: filterPref,
+                            mode: "insensitive" as const,
+                          },
+                        },
+                      },
+                      option: { equals: userPref.option },
                     },
                   },
-                  option: {
-                    equals: userPreference.option,
-                  },
-                };
-              }),
-            },
-          },
-        };
+                },
+              },
+            } as Prisma.UserWhereInput;
+          })
+          // Filter out non matching values
+          .filter((cond): cond is Prisma.UserWhereInput => cond !== null);
+
+        // Use spread operator to add to the filter
+        if (livingPreferenceConditions.length > 0) {
+          filter = {
+            AND: [filter, ...livingPreferenceConditions],
+          };
+        }
       }
 
       // Housing filter
