@@ -14,12 +14,13 @@ import {
   DropdownMenuTrigger,
 } from "../shadcn/Dropdown";
 import { Button } from "../shadcn/Button";
-import { Invite, User } from "@/types/types";
+import { Invite, Request, User } from "@/types/types";
 import { CircleUser, InboxIcon, LogOut, Search, Settings } from "lucide-react";
 import { useState } from "react";
 
 function Inbox({ user }: { user: User }) {
   const [invites, setInvites] = useState<Invite[]>(user.invites || []);
+  const [requests, setRequests] = useState<Request[]>(user.requests || []);
 
   const handleAction = async (
     inviteId: string,
@@ -68,44 +69,77 @@ function Inbox({ user }: { user: User }) {
       <DropdownMenuContent className="w-56 z-50">
         <DropdownMenuLabel>Inbox</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuGroup>
+        <DropdownMenuLabel>Invites</DropdownMenuLabel>
+        <DropdownMenuGroup className="overflow-y-auto max-h-24">
           {invites.length > 0 ? (
-            invites.map((invite) => (
-              <DropdownMenuItem key={invite.id}>
-                <div className="flex justify-between items-center w-full">
-                  <div>{invite.group.name.substring(0, 12)}...</div>
-                  <div className="flex gap-2">
-                    {invite.status === "pending" ? (
-                      <>
-                        <button
-                          className="text-blue-400 hover:text-blue-600"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleAction(invite.id, "accept");
-                          }}
-                        >
-                          Join
-                        </button>
-                        <button
-                          className="text-red-400 hover:text-red-600"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleAction(invite.id, "reject");
-                          }}
-                        >
-                          Reject
-                        </button>
-                      </>
-                    ) : (
-                      <div className="italic">{invite.status}</div>
-                    )}
+            invites
+              .sort(
+                (a, b) =>
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime()
+              )
+              .map((invite) => (
+                <DropdownMenuItem key={invite.id}>
+                  <div className="flex justify-between items-center w-full">
+                    <div>{invite.group.name.substring(0, 12)}...</div>
+                    <div className="flex gap-2">
+                      {invite.status === "pending" ? (
+                        <>
+                          <button
+                            className="text-blue-400 hover:text-blue-600"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleAction(invite.id, "accept");
+                            }}
+                          >
+                            Join
+                          </button>
+                          <button
+                            className="text-red-400 hover:text-red-600"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleAction(invite.id, "reject");
+                            }}
+                          >
+                            Reject
+                          </button>
+                        </>
+                      ) : (
+                        <div className="italic">{invite.status}</div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </DropdownMenuItem>
-            ))
+                </DropdownMenuItem>
+              ))
           ) : (
             <DropdownMenuItem className="text-gray-500">
               No invites
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel>Requests</DropdownMenuLabel>
+        <DropdownMenuGroup className="overflow-y-auto max-h-32">
+          {requests.length > 0 ? (
+            requests
+              .sort(
+                (a, b) =>
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime()
+              )
+              .map((invite) => (
+                <DropdownMenuItem key={invite.id}>
+                  <div className="flex justify-between items-center w-full">
+                    <div>{invite.group.name.substring(0, 12)}...</div>
+                    <div className="flex gap-2">
+                      <div className="italic">{invite.status}</div>
+                    </div>
+                  </div>
+                </DropdownMenuItem>
+              ))
+          ) : (
+            <DropdownMenuItem className="text-gray-500">
+              No requests
             </DropdownMenuItem>
           )}
         </DropdownMenuGroup>
