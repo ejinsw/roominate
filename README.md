@@ -26,6 +26,7 @@
 Run these commands
 
 ```bash
+cd frontend
 npm install
 npm run dev
 ```
@@ -87,6 +88,7 @@ export async function GET(request: Request) {
 Run these commands
 
 ```bash
+cd backend
 npm install
 npx prisma generate
 npm run dev
