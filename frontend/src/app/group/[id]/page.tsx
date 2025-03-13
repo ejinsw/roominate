@@ -109,9 +109,13 @@ export default function GroupProfile({
             <h1 className="text-3xl font-bold text-[#2774AE] mb-2">
               {group.name || "Unnamed Group"}
             </h1>
-            <Button variant="outline" onClick={handleRequest}>
-              Request
-            </Button>
+            {id !== user?.groupID ? (
+              <Button variant="outline" onClick={handleRequest}>
+                Request
+              </Button>
+            ) : (
+              <></>
+            )}
           </div>
           <p className="text-gray-600 mb-4">
             {group.description || "No description available"}

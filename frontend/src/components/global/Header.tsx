@@ -21,6 +21,9 @@ import { useState } from "react";
 function Inbox({ user }: { user: User }) {
   const [invites, setInvites] = useState<Invite[]>(user.invites || []);
   const [requests, setRequests] = useState<Request[]>(user.requests || []);
+  const [groupRequests, setGroupRequests] = useState<Request[]>(
+    user?.group?.requests || []
+  );
 
   const handleAction = async (
     inviteId: string,
@@ -53,6 +56,40 @@ function Inbox({ user }: { user: User }) {
       );
     } catch (error) {
       console.error(`Error while trying to ${action} invite:`, error);
+    }
+  };
+
+  const handleRequest = async (
+    requestId: string,
+    action: "accept" | "reject"
+  ) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/requests/${requestId}/${action}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      setGroupRequests((prevRequests) =>
+        prevRequests.map((req) =>
+          req.id === requestId
+            ? {
+                ...req,
+                status: action === "accept" ? "accepted" : "rejected",
+              }
+            : req
+        )
+      );
+    } catch (error) {
+      console.error(`Error while trying to ${action} request:`, error);
     }
   };
 
@@ -118,31 +155,81 @@ function Inbox({ user }: { user: User }) {
           )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuLabel>Requests</DropdownMenuLabel>
-        <DropdownMenuGroup className="overflow-y-auto max-h-32">
-          {requests.length > 0 ? (
-            requests
-              .sort(
-                (a, b) =>
-                  new Date(b.createdAt).getTime() -
-                  new Date(a.createdAt).getTime()
-              )
-              .map((invite) => (
-                <DropdownMenuItem key={invite.id}>
-                  <div className="flex justify-between items-center w-full">
-                    <div>{invite.group.name.substring(0, 12)}...</div>
-                    <div className="flex gap-2">
-                      <div className="italic">{invite.status}</div>
+        <DropdownMenuLabel>{groupRequests && "Group "}Requests</DropdownMenuLabel>
+        {groupRequests.length < 0 ? (
+          <DropdownMenuGroup className="overflow-y-auto max-h-32">
+            {requests.length > 0 ? (
+              requests
+                .sort(
+                  (a, b) =>
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime()
+                )
+                .map((invite) => (
+                  <DropdownMenuItem key={invite.id}>
+                    <div className="flex justify-between items-center w-full">
+                      <div>{invite.group.name.substring(0, 12)}...</div>
+                      <div className="flex gap-2">
+                        <div className="italic">{invite.status}</div>
+                      </div>
                     </div>
-                  </div>
-                </DropdownMenuItem>
-              ))
-          ) : (
-            <DropdownMenuItem className="text-gray-500">
-              No requests
-            </DropdownMenuItem>
-          )}
-        </DropdownMenuGroup>
+                  </DropdownMenuItem>
+                ))
+            ) : (
+              <DropdownMenuItem className="text-gray-500">
+                No requests
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuGroup>
+        ) : (
+          <DropdownMenuGroup>
+            {groupRequests.length > 0 ? (
+              groupRequests
+                .sort(
+                  (a, b) =>
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime()
+                )
+                .map((request) => (
+                  <DropdownMenuItem key={request.id}>
+                    <div className="flex justify-between items-center w-full">
+                      <div>{request.user?.name.substring(0, 12)}...</div>
+                      <div className="flex gap-2">
+                        {request.status === "pending" ? (
+                          <>
+                            <button
+                              className="text-blue-400 hover:text-blue-600"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleRequest(request.id, "accept");
+                              }}
+                            >
+                              Accept
+                            </button>
+                            <button
+                              className="text-red-400 hover:text-red-600"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleRequest(request.id, "reject");
+                              }}
+                            >
+                              Reject
+                            </button>
+                          </>
+                        ) : (
+                          <div className="italic">{request.status}</div>
+                        )}
+                      </div>
+                    </div>
+                  </DropdownMenuItem>
+                ))
+            ) : (
+              <DropdownMenuItem className="text-gray-500">
+                No requests
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuGroup>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
