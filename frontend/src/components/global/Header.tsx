@@ -20,7 +20,7 @@ import { useState } from "react";
 
 function Inbox({ user }: { user: User }) {
   const [invites, setInvites] = useState<Invite[]>(user.invites || []);
-  const [requests, setRequests] = useState<Request[]>(user.requests || []);
+  const [requests] = useState<Request[]>(user.requests || []);
   const [groupRequests, setGroupRequests] = useState<Request[]>(
     user?.group?.requests || []
   );
@@ -155,81 +155,87 @@ function Inbox({ user }: { user: User }) {
           )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuLabel>{groupRequests && "Group "}Requests</DropdownMenuLabel>
-        {groupRequests.length < 0 ? (
-          <DropdownMenuGroup className="overflow-y-auto max-h-32">
-            {requests.length > 0 ? (
-              requests
-                .sort(
-                  (a, b) =>
-                    new Date(b.createdAt).getTime() -
-                    new Date(a.createdAt).getTime()
-                )
-                .map((invite) => (
-                  <DropdownMenuItem key={invite.id}>
-                    <div className="flex justify-between items-center w-full">
-                      <div>{invite.group.name.substring(0, 12)}...</div>
-                      <div className="flex gap-2">
-                        <div className="italic">{invite.status}</div>
-                      </div>
+        <DropdownMenuLabel>
+          Requests
+        </DropdownMenuLabel>
+
+        <DropdownMenuGroup className="overflow-y-auto max-h-32">
+          {requests.length > 0 ? (
+            requests
+              .sort(
+                (a, b) =>
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime()
+              )
+              .map((invite) => (
+                <DropdownMenuItem key={invite.id}>
+                  <div className="flex justify-between items-center w-full">
+                    <div>{invite.group.name.substring(0, 12)}...</div>
+                    <div className="flex gap-2">
+                      <div className="italic">{invite.status}</div>
                     </div>
-                  </DropdownMenuItem>
-                ))
-            ) : (
-              <DropdownMenuItem className="text-gray-500">
-                No requests
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuGroup>
-        ) : (
-          <DropdownMenuGroup>
-            {groupRequests.length > 0 ? (
-              groupRequests
-                .sort(
-                  (a, b) =>
-                    new Date(b.createdAt).getTime() -
-                    new Date(a.createdAt).getTime()
-                )
-                .map((request) => (
-                  <DropdownMenuItem key={request.id}>
-                    <div className="flex justify-between items-center w-full">
-                      <div>{request.user?.name.substring(0, 12)}...</div>
-                      <div className="flex gap-2">
-                        {request.status === "pending" ? (
-                          <>
-                            <button
-                              className="text-blue-400 hover:text-blue-600"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                handleRequest(request.id, "accept");
-                              }}
-                            >
-                              Accept
-                            </button>
-                            <button
-                              className="text-red-400 hover:text-red-600"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                handleRequest(request.id, "reject");
-                              }}
-                            >
-                              Reject
-                            </button>
-                          </>
-                        ) : (
-                          <div className="italic">{request.status}</div>
-                        )}
-                      </div>
+                  </div>
+                </DropdownMenuItem>
+              ))
+          ) : (
+            <DropdownMenuItem className="text-gray-500">
+              No outgoing requests
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuGroup>
+
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel>
+          Group Requests
+        </DropdownMenuLabel>
+
+        <DropdownMenuGroup>
+          {groupRequests.length > 0 ? (
+            groupRequests
+              .sort(
+                (a, b) =>
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime()
+              )
+              .map((request) => (
+                <DropdownMenuItem key={request.id}>
+                  <div className="flex justify-between items-center w-full">
+                    <div>{request.user?.name.substring(0, 12)}...</div>
+                    <div className="flex gap-2">
+                      {request.status === "pending" ? (
+                        <>
+                          <button
+                            className="text-blue-400 hover:text-blue-600"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleRequest(request.id, "accept");
+                            }}
+                          >
+                            Accept
+                          </button>
+                          <button
+                            className="text-red-400 hover:text-red-600"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleRequest(request.id, "reject");
+                            }}
+                          >
+                            Reject
+                          </button>
+                        </>
+                      ) : (
+                        <div className="italic">{request.status}</div>
+                      )}
                     </div>
-                  </DropdownMenuItem>
-                ))
-            ) : (
-              <DropdownMenuItem className="text-gray-500">
-                No requests
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuGroup>
-        )}
+                  </div>
+                </DropdownMenuItem>
+              ))
+          ) : (
+            <DropdownMenuItem className="text-gray-500">
+              No incoming requests
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );
