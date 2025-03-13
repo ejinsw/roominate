@@ -1,7 +1,7 @@
 # Table of Contents
 
 ### Frontend
-1. [Environment Setup](#environment-setup-1)
+1. [Environment Setup](#environment-setup-frontend)
 2. [Project Hierarchy](#project-hierarchy-1)
 3. [Code Examples](#code-examples)
    - [React Components](#react-components)
@@ -9,7 +9,7 @@
 4. [Frontend Environment Variables](#frontend-environment-variables)
 
 ### Backend
-1. [Environment Setup](#environment-setup-2)
+1. [Environment Setup](#environment-setup-backend)
 2. [Project Hierarchy](#project-hierarchy-2)
 3. [How to Use Prisma ORM](#how-to-use-prisma-orm)
    - [Adding a Model to the Schema](#adding-a-model-to-the-schema)
@@ -21,7 +21,7 @@
 
 # Frontend
 
-## Environment Setup
+## Environment Setup Frontend
 
 Run these commands
 
@@ -78,14 +78,11 @@ export async function GET(request: Request) {
 }
 ```
 
-## Frontend Environment Variables
-- NEXT_PUBLIC_API_HOST
-
 **NOTE: Always fetch using env variable! This will help when deploying in the future!
 
 # Backend
 
-## Environment Setup
+## Environment Setup Backend
 
 Run these commands
 
@@ -173,11 +170,3 @@ __Useful Methods__
 - Retrieve a single entry `const specificUser = await prisma.user.findUnique({ where { ...filter... } })`
 - Remove a single entry `await prisma.user.delete({ where: { ...filter... } })`
 - Update an entry `await prisma.user.delete({ where: { ...filter... }, data: { ...updated fields... } })`
-
-
-## Endpoints
-* TODO: List all endpoints here
-
-## Backend Environment Variables
-- DATABASE_URL
-- PORT
