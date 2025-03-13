@@ -25,14 +25,23 @@ passport.use(
               preferences: {
                 include: {
                   preference: true,
-                }
+                },
               },
               preferredHousing: {
                 include: {
-                  housing: true
-                }
-              }
-            }
+                  housing: true,
+                },
+              },
+            },
+          },
+          group: {
+            include: {
+              requests: {
+                include: {
+                  user: true,
+                },
+              },
+            },
           },
           requests: {
             include: {
@@ -109,7 +118,7 @@ export const authenticateOptional = (
       }
 
       if (user) {
-        req.user = user
+        req.user = user;
       }
       next();
     }
