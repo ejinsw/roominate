@@ -30,6 +30,11 @@ npm install
 npm run dev
 ```
 
+Create a .env file in the root directory with the following contents:
+```env
+NEXT_PUBLIC_API_URL=http://localhost:9000/api
+```
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 ## Project Hierarchy
@@ -86,7 +91,14 @@ Run these commands
 
 ```bash
 npm install
+npx prisma generate
 npm run dev
+```
+
+Create a .env file in the root directory with the following contents:
+```env
+PORT=9000
+DATABASE_URL="mongodb+srv://ejinsw:Bokchoy1@cluster0.0ob8v.mongodb.net/Roominate?retryWrites=true&w=majority&appName=Cluster0"
 ```
 
 This will start the server by default on [http://localhost:9000](http://localhost:9000).
