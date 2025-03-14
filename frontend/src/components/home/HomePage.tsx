@@ -92,9 +92,10 @@ export function HomePage({
       label: "Preferences",
       options: preferences,
       callback: (val: string[]) => {
-        const newFilters = { ...filters };
-        newFilters.preferences = val;
-        setFilters(newFilters);
+        setFilters((prevFilters) => ({
+          ...prevFilters,
+          preferences: val,
+        }));
       },
     });
 
@@ -102,9 +103,10 @@ export function HomePage({
       label: "Housing",
       options: housing,
       callback: (val: string[]) => {
-        const newFilters = { ...filters };
-        newFilters.housing = val;
-        setFilters(newFilters);
+        setFilters((prevFilters) => ({
+          ...prevFilters,
+          housing: val,
+        }));
       },
     });
 
@@ -113,9 +115,10 @@ export function HomePage({
         label: "Gender",
         options: ["Male", "Female", "Non-Binary", "Other"],
         callback: (val: string[]) => {
-          const newFilters = { ...filters };
-          newFilters.gender = val;
-          setFilters(newFilters);
+          setFilters((prevFilters) => ({
+            ...prevFilters,
+            gender: val,
+          }));
         },
       });
 
@@ -123,9 +126,10 @@ export function HomePage({
         label: "Year",
         options: ["1", "2", "3", "4", "5"],
         callback: (val: string[]) => {
-          const newFilters = { ...filters };
-          newFilters.year = val;
-          setFilters(newFilters);
+          setFilters((prevFilters) => ({
+            ...prevFilters,
+            year: val,
+          }));
         },
       });
     }
@@ -140,19 +144,21 @@ export function HomePage({
         <div className="flex flex-col items-center bg-gray-50 p-5 border-r border-gray-200">
           <div className="flex gap-4 justify-center items-center w-full mb-4">
             <button
-              className={`px-4 py-2 rounded-lg ${searchType === "user"
+              className={`px-4 py-2 rounded-lg ${
+                searchType === "user"
                   ? "bg-blue-500 text-white"
                   : "bg-gray-200 text-gray-800"
-                }`}
+              }`}
               onClick={() => setSearchType("user")}
             >
               User
             </button>
             <button
-              className={`px-4 py-2 rounded-lg ${searchType === "group"
+              className={`px-4 py-2 rounded-lg ${
+                searchType === "group"
                   ? "bg-blue-500 text-white"
                   : "bg-gray-200 text-gray-800"
-                }`}
+              }`}
               onClick={() => setSearchType("group")}
             >
               Group

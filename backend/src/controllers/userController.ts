@@ -157,27 +157,6 @@ export const getUsers = expressAsyncHandler(
         }
       }
 
-      // Housing filter
-      if (parsedFilters.housing?.length) {
-        filter.preferences = {
-          preferredHousing: {
-            some: {
-              housing: {
-                OR: parsedFilters.housing.map((housing) => {
-                  return {
-                    name: {
-                      equals: housing,
-                      mode: "insensitive",
-                    },
-                  };
-                }),
-              },
-            },
-          },
-        };
-      }
-      //TO HERE
-
       const users = await prisma.user.findMany({
         where: filter,
         include: {
@@ -197,7 +176,23 @@ export const getUsers = expressAsyncHandler(
           },
         },
       });
-      res.json(users);
+
+      if (parsedFilters.housing?.length) {
+        const filteredUsers = users.filter((user) =>
+          user.preferences?.preferredHousing?.some(
+            (prefHouse) =>
+              prefHouse.housing &&
+              parsedFilters.housing.some(
+                (housingFilter) =>
+                  prefHouse.housing.name?.toLowerCase() ===
+                  housingFilter.toLowerCase()
+              )
+          )
+        );
+        res.json(filteredUsers);
+      } else {
+        res.json(users);
+      }
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Server error", error });
